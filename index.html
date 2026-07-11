@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>PrismOps — تسجيل الأوردرات</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+
+  :root {
+    --bg:        #111416;
+    --surface:   #1C2026;
+    --card:      #242A32;
+    --border:    #2E3640;
+    --steel:     #5B9EC9;
+    --amber:     #E8832A;
+    --success:   #3DAA6F;
+    --danger:    #D95F5F;
+    --text:      #DDE3EC;
+    --muted:     #7A8A9A;
+    --radius:    12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Cairo', system-ui, sans-serif;
+    font-size: 15px;
+    min-height: 100vh;
+    padding-bottom: 40px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--surface);
+    border-bottom: 2px solid var(--steel);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo-mark {
+    width: 38px; height: 38px;
+    background: var(--steel);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 18px; color: #fff;
+    flex-shrink: 0;
+  }
+  header h1 { font-size: 18px; font-weight: 900; color: var(--text); }
+  header p  { font-size: 11px; color: var(--muted); }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 16px;
+  }
+  .tab-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: var(--muted);
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 14px 8px;
+    cursor: pointer;
+    transition: .2s;
+  }
+  .tab-btn.active {
+    color: var(--steel);
+    border-bottom-color: var(--steel);
+  }
+
+  /* ── PANELS ── */
+  .panel { display: none; padding: 20px 16px; }
+  .panel.active { display: block; }
+
+  /* ── SECTION CARD ── */
+  .section-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--steel);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::before {
+    content: '';
+    display: inline-block;
+    width: 4px; height: 16px;
+    background: var(--steel);
+    border-radius: 2px;
+  }
+
+  /* ── FORM FIELDS ── */
+  .field { margin-bottom: 16px; }
+  .field:last-child { margin-bottom: 0; }
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  input, select, textarea {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    font-size: 15px;
+    padding: 12px 14px;
+    outline: none;
+    transition: border-color .2s;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--steel);
+  }
+  select option { background: var(--card); }
+  textarea { resize: vertical; min-height: 70px; }
+
+  /* radio group */
+  .radio-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 8px;
+  }
+  .radio-group label {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 8px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text);
+    transition: .15s;
+    margin: 0;
+    user-select: none;
+  }
+  .radio-group input[type=radio] { display: none; }
+  .radio-group input[type=radio]:checked + label {
+    background: rgba(91,158,201,.15);
+    border-color: var(--steel);
+    color: var(--steel);
+    font-weight: 700;
+  }
+
+  /* ── SUBMIT ── */
+  .btn-primary {
+    width: 100%;
+    background: var(--steel);
+    border: none;
+    border-radius: var(--radius);
+    color: #fff;
+    font-family: 'Cairo', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    padding: 16px;
+    cursor: pointer;
+    margin-top: 8px;
+    position: relative;
+    overflow: hidden;
+    transition: background .2s, transform .1s;
+  }
+  .btn-primary:active { transform: scale(.98); }
+  .btn-primary:hover  { background: #4a8db5; }
+
+  .btn-secondary {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 18px;
+    cursor: pointer;
+    transition: border-color .2s;
+  }
+  .btn-secondary:hover { border-color: var(--steel); }
+
+  .btn-danger {
+    background: transparent;
+    border: 1px solid var(--danger);
+    border-radius: 6px;
+    color: var(--danger);
+    font-family: 'Cairo', sans-serif;
+    font-size: 12px;
+    padding: 4px 10px;
+    cursor: pointer;
+  }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed;
+    bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: var(--success);
+    color: #fff;
+    font-family: 'Cairo', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 12px 24px;
+    border-radius: 100px;
+    transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+    z-index: 999;
+    white-space: nowrap;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── STATS ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 10px;
+    text-align: center;
+  }
+  .stat-num {
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--steel);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* ── ORDER CARDS ── */
+  .order-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 12px;
+  }
+  .order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+  .order-id {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+  .order-type {
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 100px;
+  }
+  .badge-open    { background: rgba(232,131,42,.15); color: var(--amber); }
+  .badge-late    { background: rgba(217,95,95,.15);  color: var(--danger); }
+  .badge-ontime  { background: rgba(61,170,111,.15); color: var(--success); }
+
+  .order-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .meta-chip {
+    background: var(--surface);
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--muted);
+    padding: 4px 10px;
+  }
+  .meta-chip span { color: var(--text); font-weight: 600; }
+
+  .btn-close-order {
+    width: 100%;
+    background: rgba(232,131,42,.12);
+    border: 1px solid rgba(232,131,42,.4);
+    border-radius: 8px;
+    color: var(--amber);
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 9px;
+    cursor: pointer;
+    margin-top: 4px;
+  }
+
+  /* close modal */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.7);
+    z-index: 200;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px 20px 0 0;
+    padding: 24px 20px 36px;
+    width: 100%;
+    max-width: 480px;
+  }
+  .modal-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--amber);
+    margin-bottom: 18px;
+  }
+
+  /* toolbar */
+  .toolbar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    align-items: center;
+  }
+  .toolbar-title {
+    font-weight: 700;
+    font-size: 15px;
+    flex: 1;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--muted);
+  }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 20px 0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-mark">P</div>
+  <div>
+    <h1>PrismOps</h1>
+    <p>تسجيل أوردرات المصنع</p>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('add')">➕ أوردر جديد</button>
+  <button class="tab-btn" onclick="switchTab('orders')">📋 الأوردرات</button>
+  <button class="tab-btn" onclick="switchTab('export')">📤 تصدير</button>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PANEL 1 — ADD ORDER
+══════════════════════════════════════════ -->
+<div class="panel active" id="panel-add">
+
+  <div class="section-card">
+    <div class="section-title">بيانات الأوردر</div>
+
+    <div class="field">
+      <label>نوع المنتج</label>
+      <div class="radio-group">
+        <input type="radio" name="product_type" id="pt1" value="بوابة"><label for="pt1">🚪 بوابة</label>
+        <input type="radio" name="product_type" id="pt2" value="استاند"><label for="pt2">🏗️ استاند</label>
+        <input type="radio" name="product_type" id="pt3" value="رف مخزن"><label for="pt3">📦 رف مخزن</label>
+        <input type="radio" name="product_type" id="pt4" value="سلم"><label for="pt4">🪜 سلم</label>
+        <input type="radio" name="product_type" id="pt5" value="حاجز"><label for="pt5">🔩 حاجز</label>
+        <input type="radio" name="product_type" id="pt6" value="تاني"><label for="pt6">⚙️ تاني</label>
+      </div>
+    </div>
+
+    <div class="field" id="field-other-product" style="display:none">
+      <label>اكتب نوع المنتج</label>
+      <input type="text" id="other_product" placeholder="مثال: هيكل معدني...">
+    </div>
+
+    <div class="field">
+      <label>اسم / وصف الأوردر (اختياري)</label>
+      <input type="text" id="order_desc" placeholder="مثال: بوابة منزلقة كبيرة للعميل أبو أحمد">
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-title">المواصفات</div>
+
+    <div class="field">
+      <label>نوع الحديد الأساسي</label>
+      <div class="radio-group">
+        <input type="radio" name="iron_type" id="it1" value="مربع"><label for="it1">مربع</label>
+        <input type="radio" name="iron_type" id="it2" value="أنجل"><label for="it2">أنجل</label>
+        <input type="radio" name="iron_type" id="it3" value="مواسير"><label for="it3">مواسير</label>
+        <input type="radio" name="iron_type" id="it4" value="صاج"><label for="it4">صاج</label>
+        <input type="radio" name="iron_type" id="it5" value="مكس"><label for="it5">مكس</label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>الوزن التقريبي (كيلو)</label>
+      <input type="number" id="weight_kg" placeholder="مثال: 150" min="0">
+    </div>
+
+    <div class="field">
+      <label>عدد القطع</label>
+      <input type="number" id="num_pieces" placeholder="مثال: 3" min="1">
+    </div>
+
+    <div class="field">
+      <label>كمية اللحام</label>
+      <div class="radio-group">
+        <input type="radio" name="welding" id="w1" value="بسيط"><label for="w1">🔥 بسيط</label>
+        <input type="radio" name="welding" id="w2" value="متوسط"><label for="w2">🔥🔥 متوسط</label>
+        <input type="radio" name="welding" id="w3" value="كتير جداً"><label for="w3">🔥🔥🔥 كتير</label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>فيه دهان / تشطيب؟</label>
+      <div class="radio-group">
+        <input type="radio" name="finishing" id="f1" value="لأ"><label for="f1">لأ</label>
+        <input type="radio" name="finishing" id="f2" value="أيوه"><label for="f2">أيوه</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-title">التنفيذ</div>
+
+    <div class="field">
+      <label>عدد العمال المخصصين</label>
+      <input type="number" id="workers" placeholder="مثال: 2" min="1">
+    </div>
+
+    <div class="field">
+      <label>تاريخ استلام الأوردر</label>
+      <input type="date" id="date_received">
+    </div>
+
+    <div class="field">
+      <label>تاريخ التسليم المطلوب</label>
+      <input type="date" id="date_promised">
+    </div>
+  </div>
+
+  <button class="btn-primary" onclick="saveOrder()">💾 حفظ الأوردر</button>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     PANEL 2 — ORDERS LIST
+══════════════════════════════════════════ -->
+<div class="panel" id="panel-orders">
+  <div class="stats-row" id="stats-row"></div>
+
+  <div class="toolbar">
+    <span class="toolbar-title">كل الأوردرات</span>
+    <button class="btn-secondary" onclick="renderOrders()">🔄</button>
+  </div>
+
+  <div id="orders-list"></div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     PANEL 3 — EXPORT
+══════════════════════════════════════════ -->
+<div class="panel" id="panel-export">
+  <div class="section-card">
+    <div class="section-title">تصدير البيانات</div>
+    <p style="color:var(--muted); font-size:13px; line-height:1.8; margin-bottom:18px;">
+      صدّر كل الأوردرات كملف CSV جاهز للاستخدام في Python أو Excel لتدريب الموديل.
+    </p>
+    <button class="btn-primary" onclick="exportCSV()">⬇️ تحميل CSV</button>
+  </div>
+
+  <div class="section-card" style="margin-top:16px">
+    <div class="section-title" style="color:var(--danger)">خطر — مسح البيانات</div>
+    <p style="color:var(--muted); font-size:13px; margin-bottom:14px;">
+      امسح كل الأوردرات المحفوظة. مش هيرجع تاني.
+    </p>
+    <button class="btn-danger" onclick="clearAll()">🗑️ مسح كل البيانات</button>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     CLOSE ORDER MODAL
+══════════════════════════════════════════ -->
+<div class="modal-overlay" id="close-modal">
+  <div class="modal-box">
+    <div class="modal-title">✅ تسليم الأوردر</div>
+
+    <div class="field">
+      <label>تاريخ التسليم الفعلي</label>
+      <input type="date" id="actual_delivery">
+    </div>
+
+    <div class="field">
+      <label>في مشاكل حصلت؟</label>
+      <div class="radio-group">
+        <input type="radio" name="issues" id="i0" value="لأ"><label for="i0">✅ لأ</label>
+        <input type="radio" name="issues" id="i1" value="خامة ناقصة"><label for="i1">خامة ناقصة</label>
+        <input type="radio" name="issues" id="i2" value="غياب عمال"><label for="i2">غياب عمال</label>
+        <input type="radio" name="issues" id="i3" value="تعديل العميل"><label for="i3">تعديل العميل</label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>ملاحظات (اختياري)</label>
+      <textarea id="close_notes" placeholder="أي تفاصيل تانية..."></textarea>
+    </div>
+
+    <button class="btn-primary" onclick="submitClose()" style="background:var(--amber)">✅ تأكيد التسليم</button>
+    <button class="btn-secondary" onclick="closeModal()" style="width:100%; margin-top:10px; text-align:center">إلغاء</button>
+  </div>
+</div>
+
+<div id="toast">تم الحفظ ✓</div>
+
+
+<script>
+  // ── Storage helpers ──────────────────────────
+  const STORE = 'prismops_orders';
+  let activeCloseId = null;
+
+  function getOrders() {
+    try { return JSON.parse(localStorage.getItem(STORE)) || []; }
+    catch { return []; }
+  }
+  function saveOrders(arr) {
+    localStorage.setItem(STORE, JSON.stringify(arr));
+  }
+  function genId() {
+    return 'ORD-' + Date.now().toString(36).toUpperCase();
+  }
+
+  // ── Tab switching ────────────────────────────
+  function switchTab(name) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+    const idx = ['add','orders','export'].indexOf(name);
+    document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+    if (name === 'orders') renderOrders();
+  }
+
+  // ── Form: handle "other" product type ──────
+  document.querySelectorAll('[name=product_type]').forEach(r => {
+    r.addEventListener('change', () => {
+      document.getElementById('field-other-product').style.display =
+        r.value === 'تاني' && r.checked ? 'block' : 'none';
+    });
+  });
+
+  // ── Set today as default date ───────────────
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('date_received').value = today;
+
+  // ── Save new order ───────────────────────────
+  function saveOrder() {
+    const get = id => document.getElementById(id).value.trim();
+    const radio = name => {
+      const el = document.querySelector(`[name=${name}]:checked`);
+      return el ? el.value : '';
+    };
+
+    const product_type = radio('product_type') === 'تاني'
+      ? get('other_product') || 'تاني'
+      : radio('product_type');
+
+    if (!product_type)           return alert('اختار نوع المنتج');
+    if (!radio('iron_type'))     return alert('اختار نوع الحديد');
+    if (!radio('welding'))       return alert('اختار كمية اللحام');
+    if (!radio('finishing'))     return alert('فيه دهان ولا لأ؟');
+    if (!get('date_received'))   return alert('اكتب تاريخ استلام الأوردر');
+    if (!get('date_promised'))   return alert('اكتب تاريخ التسليم المطلوب');
+
+    const receivedD  = new Date(get('date_received'));
+    const promisedD  = new Date(get('date_promised'));
+    const promised_days = Math.round((promisedD - receivedD) / 86400000);
+
+    const order = {
+      id:             genId(),
+      timestamp:      new Date().toISOString(),
+      product_type,
+      order_desc:     get('order_desc'),
+      iron_type:      radio('iron_type'),
+      weight_kg:      parseFloat(get('weight_kg')) || null,
+      num_pieces:     parseInt(get('num_pieces'))  || null,
+      welding_complexity: radio('welding'),
+      finishing:      radio('finishing'),
+      workers_assigned: parseInt(get('workers')) || null,
+      date_received:  get('date_received'),
+      date_promised:  get('date_promised'),
+      promised_days,
+      // filled later
+      date_actual:    null,
+      actual_days:    null,
+      delay_days:     null,
+      is_late:        null,
+      issues:         null,
+      close_notes:    null,
+      status:         'مفتوح'
+    };
+
+    const orders = getOrders();
+    orders.unshift(order);
+    saveOrders(orders);
+    showToast('تم حفظ الأوردر ✓');
+    resetForm();
+  }
+
+  function resetForm() {
+    document.querySelectorAll('[name=product_type],[name=iron_type],[name=welding],[name=finishing]')
+      .forEach(r => r.checked = false);
+    ['order_desc','other_product','weight_kg','num_pieces','workers','date_promised'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('date_received').value = today;
+    document.getElementById('field-other-product').style.display = 'none';
+  }
+
+  // ── Render orders list ───────────────────────
+  function renderOrders() {
+    const orders = getOrders();
+    const list = document.getElementById('orders-list');
+
+    // Stats
+    const total   = orders.length;
+    const open    = orders.filter(o => o.status === 'مفتوح').length;
+    const closed  = orders.filter(o => o.status !== 'مفتوح').length;
+    const ontime  = orders.filter(o => o.is_late === false).length;
+    const lateC   = orders.filter(o => o.is_late === true).length;
+
+    document.getElementById('stats-row').innerHTML = `
+      <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">إجمالي</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--amber)">${open}</div><div class="stat-label">مفتوح</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--success)">${ontime}</div><div class="stat-label">في الميعاد</div></div>
+    `;
+
+    if (!orders.length) {
+      list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>مفيش أوردرات لسه — ابدأ بتسجيل أول أوردر</p></div>`;
+      return;
+    }
+
+    list.innerHTML = orders.map(o => {
+      let badge = '';
+      if      (o.status === 'مفتوح') badge = `<span class="badge badge-open">مفتوح</span>`;
+      else if (o.is_late === true)   badge = `<span class="badge badge-late">تأخر ${o.delay_days} يوم</span>`;
+      else                            badge = `<span class="badge badge-ontime">في الميعاد</span>`;
+
+      const closeBtn = o.status === 'مفتوح'
+        ? `<button class="btn-close-order" onclick="openCloseModal('${o.id}')">✅ تسجيل التسليم</button>`
+        : '';
+
+      const chips = [
+        o.iron_type     ? `<div class="meta-chip">🔩 <span>${o.iron_type}</span></div>` : '',
+        o.weight_kg     ? `<div class="meta-chip">⚖️ <span>${o.weight_kg} كيلو</span></div>` : '',
+        o.num_pieces    ? `<div class="meta-chip">📦 <span>${o.num_pieces} قطعة</span></div>` : '',
+        o.workers_assigned ? `<div class="meta-chip">👷 <span>${o.workers_assigned} عمال</span></div>` : '',
+        o.promised_days ? `<div class="meta-chip">📅 <span>${o.promised_days} يوم مهلة</span></div>` : '',
+        `<div class="meta-chip">🔥 <span>${o.welding_complexity || '—'}</span></div>`,
+      ].filter(Boolean).join('');
+
+      return `
+        <div class="order-card">
+          <div class="order-header">
+            <div>
+              <div class="order-id">${o.id} · ${o.date_received || ''}</div>
+              <div class="order-type">${o.product_type}${o.order_desc ? ' — ' + o.order_desc : ''}</div>
+            </div>
+            ${badge}
+          </div>
+          <div class="order-meta">${chips}</div>
+          ${closeBtn}
+          <div style="margin-top:8px">
+            <button class="btn-danger" onclick="deleteOrder('${o.id}')">🗑️ حذف</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ── Close order modal ───────────────────────
+  function openCloseModal(id) {
+    activeCloseId = id;
+    document.getElementById('actual_delivery').value = today;
+    document.querySelectorAll('[name=issues]').forEach(r => r.checked = false);
+    document.getElementById('close_notes').value = '';
+    document.getElementById('close-modal').classList.add('open');
+  }
+  function closeModal() {
+    document.getElementById('close-modal').classList.remove('open');
+    activeCloseId = null;
+  }
+  function submitClose() {
+    const actualVal = document.getElementById('actual_delivery').value;
+    if (!actualVal) return alert('اكتب تاريخ التسليم الفعلي');
+    const issueEl = document.querySelector('[name=issues]:checked');
+    if (!issueEl) return alert('اختار لو في مشكلة ولا لأ');
+
+    const orders = getOrders();
+    const order  = orders.find(o => o.id === activeCloseId);
+    if (!order) return;
+
+    const actualD   = new Date(actualVal);
+    const promisedD = new Date(order.date_promised);
+    const delay_days = Math.round((actualD - promisedD) / 86400000);
+    const receivedD  = new Date(order.date_received);
+    const actual_days = Math.round((actualD - receivedD) / 86400000);
+
+    order.date_actual  = actualVal;
+    order.actual_days  = actual_days;
+    order.delay_days   = delay_days;
+    order.is_late      = delay_days > 0;
+    order.issues       = issueEl.value;
+    order.close_notes  = document.getElementById('close_notes').value.trim();
+    order.status       = 'مغلق';
+
+    saveOrders(orders);
+    closeModal();
+    showToast(delay_days > 0 ? `تأخر ${delay_days} يوم — تم التسجيل` : 'سُلّم في الميعاد ✓');
+    renderOrders();
+  }
+
+  // ── Delete order ────────────────────────────
+  function deleteOrder(id) {
+    if (!confirm('تحذف الأوردر ده؟')) return;
+    saveOrders(getOrders().filter(o => o.id !== id));
+    renderOrders();
+  }
+
+  // ── Export CSV ──────────────────────────────
+  function exportCSV() {
+    const orders = getOrders();
+    if (!orders.length) return alert('مفيش بيانات للتصدير');
+
+    const cols = [
+      'id','timestamp','product_type','order_desc',
+      'iron_type','weight_kg','num_pieces','welding_complexity','finishing',
+      'workers_assigned','date_received','date_promised','promised_days',
+      'date_actual','actual_days','delay_days','is_late','issues','close_notes','status'
+    ];
+
+    const rows = [cols.join(',')];
+    orders.forEach(o => {
+      rows.push(cols.map(c => {
+        const v = o[c] ?? '';
+        return typeof v === 'string' && v.includes(',') ? `"${v}"` : v;
+      }).join(','));
+    });
+
+    const blob = new Blob(['\uFEFF' + rows.join('\n')], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `prismops_orders_${today}.csv`;
+    a.click();
+    showToast('تم التحميل ✓');
+  }
+
+  // ── Clear all ───────────────────────────────
+  function clearAll() {
+    if (!confirm('متأكد إنك عايز تمسح كل البيانات؟ مش هيرجع تاني.')) return;
+    localStorage.removeItem(STORE);
+    showToast('تم المسح');
+  }
+
+  // ── Toast ────────────────────────────────────
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+</script>
+</body>
+</html>
