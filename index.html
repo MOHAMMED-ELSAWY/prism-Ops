@@ -3,810 +3,1451 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>PrismOps — تسجيل الأوردرات</title>
+<title>PrismOps — مخزن الأدوات</title>
+<script>
+  (function() {
+    try {
+      var saved = localStorage.getItem('prismops_theme');
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    } catch (e) {}
+  })();
+</script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
 
   :root {
-    --bg:        #111416;
-    --surface:   #1C2026;
-    --card:      #242A32;
-    --border:    #2E3640;
-    --steel:     #5B9EC9;
-    --amber:     #E8832A;
-    --success:   #3DAA6F;
-    --danger:    #D95F5F;
-    --text:      #DDE3EC;
-    --muted:     #7A8A9A;
-    --radius:    12px;
+    --bg:       #F2F4F7;
+    --surface:  #FAFBFC;
+    --card:     #FFFFFF;
+    --card-2:   #F3F5F8;
+    --border:   #E0E4EA;
+    --hover-border: #C4CBD4;
+    --steel:    #1F7A99;
+    --steel-rgb: 31,122,153;
+    --amber:    #D9730D;
+    --amber-2:  #B85D0A;
+    --amber-rgb: 217,115,13;
+    --success:  #1F9D55;
+    --success-rgb: 31,157,85;
+    --danger:   #D9433F;
+    --danger-rgb: 217,67,63;
+    --warn:     #B4790E;
+    --warn-rgb: 180,121,14;
+    --text:     #1C2430;
+    --muted:    #66707C;
+    --radius:   12px;
+    --shadow-sm: 0 2px 10px rgba(31,41,55,.08);
+    --shadow-md: 0 14px 32px rgba(31,41,55,.14);
+    --header-end: #EDF0F4;
+    --success-2: #157A42;
+    --steel-2:   #16607A;
+    color-scheme: light;
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  [data-theme="dark"] {
+    --bg:       #0D1117;
+    --surface:  #141A22;
+    --card:     #1B222C;
+    --card-2:   #212934;
+    --border:   #2A3341;
+    --hover-border: #384254;
+    --steel:    #45B8C9;
+    --steel-rgb: 69,184,201;
+    --amber:    #F2994A;
+    --amber-2:  #D97B2E;
+    --amber-rgb: 242,153,74;
+    --success:  #4ADE80;
+    --success-rgb: 74,222,128;
+    --danger:   #F2706F;
+    --danger-rgb: 242,112,111;
+    --warn:     #FBBF24;
+    --warn-rgb: 251,191,36;
+    --text:     #E8ECF2;
+    --muted:    #8A97A8;
+    --shadow-sm: 0 2px 10px rgba(0,0,0,.28);
+    --shadow-md: 0 10px 28px rgba(0,0,0,.4);
+    --header-end: #0D1117;
+    --success-2: #2F8A5A;
+    --steel-2:   #3F7EA3;
+    color-scheme: dark;
+  }
 
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html { scroll-behavior: smooth; transition: background-color .3s ease; }
   body {
-    background: var(--bg);
+    transition: background-color .3s ease;
+    background:
+      radial-gradient(circle at 15% 0%, rgba(var(--amber-rgb),.05), transparent 40%),
+      radial-gradient(circle at 85% 10%, rgba(var(--steel-rgb),.05), transparent 40%),
+      var(--bg);
     color: var(--text);
     font-family: 'Cairo', system-ui, sans-serif;
     font-size: 15px;
     min-height: 100vh;
-    padding-bottom: 40px;
+    padding-bottom: 50px;
+    -webkit-font-smoothing: antialiased;
   }
 
-  /* ── HEADER ── */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulseDot {
+    0%   { box-shadow: 0 0 0 0 rgba(var(--success-rgb),.55); }
+    70%  { box-shadow: 0 0 0 7px rgba(var(--success-rgb),0); }
+    100% { box-shadow: 0 0 0 0 rgba(var(--success-rgb),0); }
+  }
+
+  /* HEADER */
   header {
-    background: var(--surface);
-    border-bottom: 2px solid var(--steel);
-    padding: 16px 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
+    background: linear-gradient(180deg, var(--surface), var(--header-end));
+    border-bottom: 2px solid var(--amber);
+    box-shadow: var(--shadow-sm);
+    padding: 14px 18px;
+    display: flex; align-items: center; gap: 12px;
+    position: sticky; top: 0; z-index: 100;
   }
   .logo-mark {
     width: 38px; height: 38px;
-    background: var(--steel);
-    border-radius: 8px;
+    background: linear-gradient(135deg, var(--amber), var(--amber-2));
+    box-shadow: 0 3px 12px rgba(var(--amber-rgb),.35);
+    border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
-    font-weight: 900; font-size: 18px; color: #fff;
+    font-weight: 900; font-size: 18px; color: #fff; flex-shrink: 0;
+  }
+  header h1 { font-size: 17px; font-weight: 900; letter-spacing: .01em; }
+  header p  { font-size: 11px; color: var(--muted); }
+  .header-status {
+    margin-inline-start: auto;
+    display: flex; align-items: center; gap: 6px;
     flex-shrink: 0;
   }
-  header h1 { font-size: 18px; font-weight: 900; color: var(--text); }
-  header p  { font-size: 11px; color: var(--muted); }
+  .live-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--success);
+    animation: pulseDot 2s infinite;
+  }
+  .header-status span.label { font-size: 11px; color: var(--muted); font-weight: 600; }
+  .theme-toggle-btn {
+    background: var(--card-2); border: 1px solid var(--border);
+    border-radius: 100px; width: 30px; height: 30px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; line-height: 1; cursor: pointer;
+    margin-inline-start: 8px; transition: border-color .2s, transform .15s;
+  }
+  .theme-toggle-btn:hover { border-color: var(--amber); }
+  .theme-toggle-btn:active { transform: scale(.9); }
 
-  /* ── TABS ── */
+  /* TABS */
   .tabs {
     display: flex;
     background: var(--surface);
     border-bottom: 1px solid var(--border);
-    padding: 0 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
   }
+  .tabs::-webkit-scrollbar { display: none; }
   .tab-btn {
-    flex: 1;
-    background: none;
-    border: none;
+    flex: 1; min-width: 80px;
+    background: none; border: none;
     border-bottom: 3px solid transparent;
     color: var(--muted);
     font-family: 'Cairo', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    padding: 14px 8px;
-    cursor: pointer;
-    transition: .2s;
+    font-size: 13px; font-weight: 600;
+    padding: 13px 6px; cursor: pointer; transition: color .2s, border-color .2s;
+    white-space: nowrap;
   }
-  .tab-btn.active {
-    color: var(--steel);
-    border-bottom-color: var(--steel);
-  }
+  .tab-btn.active { color: var(--amber); border-bottom-color: var(--amber); }
+  .tab-btn:hover { color: var(--text); }
 
-  /* ── PANELS ── */
-  .panel { display: none; padding: 20px 16px; }
-  .panel.active { display: block; }
+  /* PANELS */
+  .panel { display: none; padding: 18px 15px; }
+  .panel.active { display: block; animation: fadeInUp .25s ease; }
 
-  /* ── SECTION CARD ── */
+  /* CARDS */
   .section-card {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 18px;
-    margin-bottom: 16px;
+    padding: 16px; margin-bottom: 14px;
+    box-shadow: var(--shadow-sm);
   }
   .section-title {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--steel);
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    font-size: 12px; font-weight: 700;
+    color: var(--amber); text-transform: uppercase;
+    letter-spacing: .08em; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
   }
   .section-title::before {
-    content: '';
-    display: inline-block;
-    width: 4px; height: 16px;
-    background: var(--steel);
-    border-radius: 2px;
+    content: ''; display: inline-block;
+    width: 4px; height: 14px;
+    background: var(--amber); border-radius: 2px;
   }
 
-  /* ── FORM FIELDS ── */
-  .field { margin-bottom: 16px; }
+  /* FIELDS */
+  .field { margin-bottom: 14px; }
   .field:last-child { margin-bottom: 0; }
-  label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--muted);
-    margin-bottom: 6px;
-  }
+  label { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 5px; }
   input, select, textarea {
     width: 100%;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
-    font-family: 'Cairo', sans-serif;
-    font-size: 15px;
-    padding: 12px 14px;
-    outline: none;
-    transition: border-color .2s;
+    background: var(--card-2); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text);
+    font-family: 'Cairo', sans-serif; font-size: 15px;
+    padding: 11px 13px; outline: none; transition: border-color .2s, box-shadow .2s;
+    -webkit-appearance: none;
   }
   input:focus, select:focus, textarea:focus {
-    border-color: var(--steel);
+    border-color: var(--amber);
+    box-shadow: 0 0 0 3px rgba(var(--amber-rgb),.12);
   }
   select option { background: var(--card); }
-  textarea { resize: vertical; min-height: 70px; }
 
-  /* radio group */
+  /* RADIO */
   .radio-group {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-    gap: 8px;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 7px;
   }
   .radio-group label {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 8px;
-    text-align: center;
-    cursor: pointer;
-    font-size: 13px;
-    color: var(--text);
-    transition: .15s;
-    margin: 0;
-    user-select: none;
+    background: var(--card-2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 9px 6px; text-align: center;
+    cursor: pointer; font-size: 13px; color: var(--text);
+    transition: .15s; margin: 0; user-select: none;
   }
   .radio-group input[type=radio] { display: none; }
   .radio-group input[type=radio]:checked + label {
-    background: rgba(91,158,201,.15);
-    border-color: var(--steel);
-    color: var(--steel);
-    font-weight: 700;
+    background: rgba(var(--amber-rgb),.15);
+    border-color: var(--amber); color: var(--amber); font-weight: 700;
   }
 
-  /* ── SUBMIT ── */
+  /* BUTTONS */
   .btn-primary {
     width: 100%;
-    background: var(--steel);
+    background: linear-gradient(135deg, var(--amber), var(--amber-2));
     border: none;
-    border-radius: var(--radius);
-    color: #fff;
-    font-family: 'Cairo', sans-serif;
-    font-size: 16px;
-    font-weight: 700;
-    padding: 16px;
-    cursor: pointer;
-    margin-top: 8px;
-    position: relative;
-    overflow: hidden;
-    transition: background .2s, transform .1s;
+    border-radius: var(--radius); color: #fff;
+    font-family: 'Cairo', sans-serif; font-size: 15px; font-weight: 700;
+    padding: 14px; cursor: pointer; margin-top: 6px;
+    box-shadow: 0 6px 16px rgba(var(--amber-rgb),.25);
+    transition: box-shadow .2s, transform .12s, filter .2s;
   }
   .btn-primary:active { transform: scale(.98); }
-  .btn-primary:hover  { background: #4a8db5; }
+  .btn-primary:hover  { filter: brightness(1.05); box-shadow: 0 8px 20px rgba(var(--amber-rgb),.35); transform: translateY(-1px); }
+  .btn-primary.btn-success-grad { background: linear-gradient(135deg, var(--success), var(--success-2)); box-shadow: 0 6px 16px rgba(var(--success-rgb),.25); }
+  .btn-primary.btn-steel-grad   { background: linear-gradient(135deg, var(--steel), var(--steel-2));     box-shadow: 0 6px 16px rgba(var(--steel-rgb),.25); }
 
   .btn-secondary {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    color: var(--text);
-    font-family: 'Cairo', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    padding: 10px 18px;
-    cursor: pointer;
-    transition: border-color .2s;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); color: var(--text);
+    font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 600;
+    padding: 9px 16px; cursor: pointer; transition: border-color .2s, background .2s;
   }
-  .btn-secondary:hover { border-color: var(--steel); }
+  .btn-secondary:hover { border-color: var(--amber); background: var(--card-2); }
 
-  .btn-danger {
-    background: transparent;
-    border: 1px solid var(--danger);
-    border-radius: 6px;
-    color: var(--danger);
-    font-family: 'Cairo', sans-serif;
-    font-size: 12px;
-    padding: 4px 10px;
-    cursor: pointer;
+  .btn-sm {
+    background: transparent; border: 1px solid var(--border);
+    border-radius: 6px; color: var(--muted);
+    font-family: 'Cairo', sans-serif; font-size: 12px;
+    padding: 4px 10px; cursor: pointer; transition: .15s;
   }
+  .btn-sm.danger { border-color: var(--danger); color: var(--danger); }
+  .btn-sm.success { border-color: var(--success); color: var(--success); }
+  .btn-sm.warn { border-color: var(--warn); color: var(--warn); }
+  .btn-sm.danger:hover { background: rgba(var(--danger-rgb),.12); }
+  .btn-sm.success:hover { background: rgba(var(--success-rgb),.12); }
+  .btn-sm.warn:hover { background: rgba(var(--warn-rgb),.12); }
 
-  /* ── TOAST ── */
-  #toast {
-    position: fixed;
-    bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
-    background: var(--success);
-    color: #fff;
-    font-family: 'Cairo', sans-serif;
-    font-weight: 700;
-    font-size: 14px;
-    padding: 12px 24px;
-    border-radius: 100px;
-    transition: transform .35s cubic-bezier(.34,1.56,.64,1);
-    z-index: 999;
-    white-space: nowrap;
-  }
-  #toast.show { transform: translateX(-50%) translateY(0); }
-
-  /* ── STATS ── */
+  /* STATS */
   .stats-row {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-bottom: 20px;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 8px; margin-bottom: 18px;
   }
   .stat-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 14px 10px;
-    text-align: center;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 12px 8px; text-align: center;
+    transition: transform .2s, box-shadow .2s;
   }
-  .stat-num {
-    font-size: 26px;
-    font-weight: 900;
-    color: var(--steel);
-    line-height: 1;
-  }
-  .stat-label {
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 4px;
-  }
+  .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+  .stat-num { font-size: 22px; font-weight: 900; color: var(--amber); line-height: 1; }
+  .stat-label { font-size: 10px; color: var(--muted); margin-top: 3px; }
 
-  /* ── ORDER CARDS ── */
-  .order-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 14px 16px;
-    margin-bottom: 12px;
+  /* TOOL CARD */
+  .tool-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 13px 15px; margin-bottom: 10px;
+    transition: border-color .2s, transform .2s, box-shadow .2s;
+    animation: fadeInUp .3s ease both;
   }
-  .order-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 10px;
+  .tool-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); border-color: var(--hover-border); }
+  .tool-card.low-stock { border-color: rgba(var(--danger-rgb),.5); }
+  .tool-card.out-stock { border-color: var(--danger); background: rgba(var(--danger-rgb),.05); }
+
+  .tool-header {
+    display: flex; justify-content: space-between;
+    align-items: flex-start; margin-bottom: 8px;
   }
-  .order-id {
-    font-size: 12px;
-    color: var(--muted);
-    margin-bottom: 2px;
-  }
-  .order-type {
-    font-size: 16px;
-    font-weight: 700;
-  }
+  .tool-name { font-size: 15px; font-weight: 700; }
+  .tool-id   { font-size: 11px; color: var(--muted); }
+
   .badge {
-    font-size: 11px;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 100px;
+    font-size: 11px; font-weight: 700;
+    padding: 3px 10px; border-radius: 100px; white-space: nowrap;
+    letter-spacing: .02em;
   }
-  .badge-open    { background: rgba(232,131,42,.15); color: var(--amber); }
-  .badge-late    { background: rgba(217,95,95,.15);  color: var(--danger); }
-  .badge-ontime  { background: rgba(61,170,111,.15); color: var(--success); }
+  .badge-ok      { background: rgba(var(--success-rgb),.15); color: var(--success); }
+  .badge-low     { background: rgba(var(--warn-rgb),.15); color: var(--warn); }
+  .badge-out     { background: rgba(var(--danger-rgb),.15);  color: var(--danger); }
+  .badge-lent    { background: rgba(var(--steel-rgb),.15); color: var(--steel); }
 
-  .order-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 10px;
+  .tool-meta {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;
   }
   .meta-chip {
-    background: var(--surface);
-    border-radius: 6px;
-    font-size: 12px;
-    color: var(--muted);
-    padding: 4px 10px;
+    background: var(--card-2); border-radius: 6px;
+    font-size: 12px; color: var(--muted); padding: 3px 9px;
   }
   .meta-chip span { color: var(--text); font-weight: 600; }
 
-  .btn-close-order {
-    width: 100%;
-    background: rgba(232,131,42,.12);
-    border: 1px solid rgba(232,131,42,.4);
-    border-radius: 8px;
-    color: var(--amber);
-    font-family: 'Cairo', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    padding: 9px;
-    cursor: pointer;
-    margin-top: 4px;
+  .qty-bar-wrap {
+    background: var(--card-2); border: 1px solid var(--border); border-radius: 4px;
+    height: 6px; margin-bottom: 10px; overflow: hidden;
+  }
+  .qty-bar {
+    height: 100%; border-radius: 4px; transition: width .4s;
   }
 
-  /* close modal */
-  .modal-overlay {
+  .tool-actions { display: flex; gap: 7px; flex-wrap: wrap; }
+
+  /* INVENTORY VIEW MODES */
+  .view-toggle { display: flex; gap: 7px; margin-bottom: 14px; }
+  .view-btn {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 100px; color: var(--muted);
+    font-family: 'Cairo', sans-serif; font-size: 12px; font-weight: 600;
+    padding: 7px 16px; cursor: pointer; transition: .15s; flex: 1;
+  }
+  .view-btn.active { background: rgba(var(--amber-rgb),.15); border-color: var(--amber); color: var(--amber); }
+  .view-btn:hover:not(.active) { border-color: var(--hover-border); }
+
+  #inventory-list.view-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  @media (min-width: 640px)  { #inventory-list.view-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (min-width: 960px)  { #inventory-list.view-grid { grid-template-columns: repeat(4, 1fr); } }
+  #inventory-list.view-grid .empty-state { grid-column: 1 / -1; }
+
+  #inventory-list.view-grid .tool-card { padding: 12px; margin-bottom: 0; }
+  #inventory-list.view-grid .tool-header { flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+  #inventory-list.view-grid .tool-name { font-size: 14px; line-height: 1.3; }
+  #inventory-list.view-grid .tool-id { font-size: 10px; }
+  #inventory-list.view-grid .tool-meta { gap: 4px; margin-bottom: 8px; }
+  #inventory-list.view-grid .meta-chip { font-size: 11px; padding: 3px 7px; }
+  #inventory-list.view-grid .tool-actions { gap: 5px; }
+  #inventory-list.view-grid .tool-actions .btn-sm { flex: 1; text-align: center; padding: 5px 4px; font-size: 11px; }
+  #inventory-list.view-grid .qty-bar-wrap { margin-bottom: 8px; }
+
+  #inventory-list.view-list .tool-card { margin-bottom: 10px; }
+
+  /* SEARCH */
+  .search-wrap { position: relative; margin-bottom: 14px; }
+  .search-wrap input { padding-right: 38px; }
+  .search-icon {
+    position: absolute; left: auto; right: 12px; top: 50%;
+    transform: translateY(-50%); color: var(--muted); font-size: 16px;
+    pointer-events: none;
+  }
+
+  /* SEARCHABLE COMBOBOX (lend / return) */
+  .combo-wrap { position: relative; }
+  .combo-dropdown {
     display: none;
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,.7);
+    position: absolute; top: calc(100% + 6px); right: 0; left: 0;
+    background: var(--card-2); border: 1px solid var(--border);
+    border-radius: 10px; max-height: 230px; overflow-y: auto;
+    z-index: 60; box-shadow: var(--shadow-md);
+  }
+  .combo-dropdown.open { display: block; animation: fadeInUp .15s ease; }
+  .combo-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 11px 13px; cursor: pointer; border-bottom: 1px solid var(--border);
+    transition: background .15s;
+  }
+  .combo-item:last-child { border-bottom: none; }
+  .combo-item:hover, .combo-item:active { background: rgba(var(--amber-rgb),.12); }
+  .combo-item-name { font-size: 14px; font-weight: 600; }
+  .combo-item-meta { font-size: 11px; color: var(--muted); white-space: nowrap; }
+  .combo-empty { padding: 16px; text-align: center; color: var(--muted); font-size: 13px; }
+
+  .combo-hint {
+    margin-top: 8px; padding: 9px 12px; border-radius: 8px;
+    font-size: 12px; line-height: 1.6;
+  }
+  .combo-hint-tool {
+    background: rgba(var(--steel-rgb),.1); border: 1px solid rgba(var(--steel-rgb),.3); color: var(--steel);
+  }
+  .combo-hint-good {
+    background: rgba(var(--warn-rgb),.1); border: 1px solid rgba(var(--warn-rgb),.3); color: var(--warn);
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.75); backdrop-filter: blur(3px);
     z-index: 200;
-    align-items: flex-end;
-    justify-content: center;
+    align-items: flex-end; justify-content: center;
   }
   .modal-overlay.open { display: flex; }
   .modal-box {
-    background: var(--card);
-    border: 1px solid var(--border);
+    background: var(--card); border: 1px solid var(--border);
     border-radius: 20px 20px 0 0;
-    padding: 24px 20px 36px;
-    width: 100%;
-    max-width: 480px;
+    box-shadow: var(--shadow-md);
+    padding: 22px 18px 36px; width: 100%; max-width: 480px;
+    max-height: 90vh; overflow-y: auto;
+    animation: fadeInUp .25s ease;
   }
   .modal-title {
-    font-size: 17px;
-    font-weight: 800;
-    color: var(--amber);
-    margin-bottom: 18px;
+    font-size: 16px; font-weight: 800;
+    color: var(--amber); margin-bottom: 16px;
   }
 
-  /* toolbar */
-  .toolbar {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-    align-items: center;
+  /* HISTORY */
+  .log-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+    animation: fadeInUp .3s ease both;
   }
-  .toolbar-title {
-    font-weight: 700;
-    font-size: 15px;
-    flex: 1;
+  .log-item:last-child { border-bottom: none; }
+  .log-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    flex-shrink: 0; margin-top: 5px;
   }
+  .log-text { font-size: 13px; line-height: 1.6; flex: 1; }
+  .log-time { font-size: 11px; color: var(--muted); }
+
+  /* TOAST */
+  #toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--success); color: #fff;
+    font-family: 'Cairo', sans-serif; font-weight: 700;
+    font-size: 14px; padding: 11px 22px;
+    border-radius: 100px;
+    box-shadow: var(--shadow-md);
+    transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+    z-index: 999; white-space: nowrap;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
 
   .empty-state {
-    text-align: center;
-    padding: 48px 20px;
-    color: var(--muted);
+    text-align: center; padding: 44px 20px; color: var(--muted);
+    animation: fadeInUp .3s ease;
   }
-  .empty-icon { font-size: 40px; margin-bottom: 12px; }
-  .empty-state p { font-size: 14px; }
+  .empty-icon { font-size: 36px; margin-bottom: 10px; }
 
-  .divider {
-    border: none;
-    border-top: 1px solid var(--border);
-    margin: 20px 0;
+  .toolbar {
+    display: flex; gap: 8px; margin-bottom: 14px; align-items: center;
   }
+  .toolbar-title { font-weight: 700; font-size: 14px; flex: 1; }
+
+  .filter-row {
+    display: flex; gap: 7px; margin-bottom: 14px; overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .filter-row::-webkit-scrollbar { display: none; }
+  .filter-btn {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 100px; color: var(--muted);
+    font-family: 'Cairo', sans-serif; font-size: 12px; font-weight: 600;
+    padding: 6px 14px; cursor: pointer; white-space: nowrap; transition: .15s;
+  }
+  .filter-btn.active { background: rgba(var(--amber-rgb),.15); border-color: var(--amber); color: var(--amber); }
+  .filter-btn:hover:not(.active) { border-color: var(--hover-border); }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+  /* low stock alert banner */
+  .alert-banner {
+    background: rgba(var(--danger-rgb),.1); border: 1px solid rgba(var(--danger-rgb),.4);
+    border-radius: var(--radius); padding: 12px 15px; margin-bottom: 14px;
+    font-size: 13px; color: var(--danger); display: none;
+  }
+  .alert-banner.show { display: block; animation: fadeInUp .3s ease; }
+
+  /* LOGIN */
+  .login-overlay {
+    position: fixed; inset: 0; z-index: 500;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    background:
+      radial-gradient(circle at 15% 0%, rgba(var(--amber-rgb),.08), transparent 45%),
+      radial-gradient(circle at 85% 100%, rgba(var(--steel-rgb),.08), transparent 45%),
+      var(--bg);
+  }
+  .login-card {
+    width: 100%; max-width: 340px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 20px; padding: 30px 26px;
+    box-shadow: var(--shadow-md);
+    text-align: center;
+    animation: fadeInUp .35s ease;
+  }
+  .login-logo {
+    width: 56px; height: 56px; margin: 0 auto 14px;
+    background: linear-gradient(135deg, var(--amber), var(--amber-2));
+    box-shadow: 0 4px 16px rgba(var(--amber-rgb),.35);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+  }
+  .login-card h2 { font-size: 19px; font-weight: 900; margin-bottom: 3px; }
+  .login-card > p { font-size: 12px; color: var(--muted); margin-bottom: 22px; }
+  .login-card .field { text-align: right; margin-bottom: 10px; }
+  .login-card input {
+    text-align: center; letter-spacing: .1em; font-size: 17px;
+  }
+  .login-error {
+    font-size: 12px; color: var(--danger); background: rgba(var(--danger-rgb),.1);
+    border: 1px solid rgba(var(--danger-rgb),.3); border-radius: 8px;
+    padding: 8px; margin-bottom: 12px;
+  }
+  .login-card .btn-primary { margin-top: 4px; }
+  @keyframes shakeX {
+    0%,100% { transform: translateX(0); }
+    20%,60% { transform: translateX(-6px); }
+    40%,80% { transform: translateX(6px); }
+  }
+  .login-card.shake { animation: shakeX .35s ease; }
+
+  .logout-btn {
+    background: transparent; border: 1px solid var(--border);
+    border-radius: 100px; color: var(--muted);
+    font-family: 'Cairo', sans-serif; font-size: 12px; font-weight: 600;
+    padding: 4px 12px; cursor: pointer; transition: .15s;
+  }
+  .logout-btn:hover { border-color: var(--danger); color: var(--danger); }
 </style>
 </head>
 <body>
 
+<!-- LOGIN SCREEN -->
+<div class="login-overlay" id="login-overlay">
+  <div class="login-card" id="login-card">
+    <div class="login-logo">🔧</div>
+    <h2>PrismOps</h2>
+    <p>إدارة أدوات المصنع — سجّل دخول عشان تكمل</p>
+    <div class="login-error" id="login-error" style="display:none">❌ كلمة السر غلط، جرب تاني</div>
+    <div class="field">
+      <label>كلمة السر</label>
+      <input type="password" id="login-password" placeholder="••••••••" autocomplete="off" onkeydown="if(event.key==='Enter') attemptLogin()">
+    </div>
+    <button class="btn-primary" onclick="attemptLogin()">🔓 دخول</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app-shell" style="display:none">
+
 <header>
-  <div class="logo-mark">P</div>
+  <div class="logo-mark">🔧</div>
   <div>
-    <h1>PrismOps</h1>
-    <p>تسجيل أوردرات المصنع</p>
+    <h1>PrismOps — المخزن</h1>
+    <p>إدارة أدوات المصنع</p>
+  </div>
+  <div class="header-status">
+    <span class="live-dot"></span>
+    <span class="label">مباشر</span>
+    <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" aria-label="تبديل المظهر" title="تبديل المظهر">🌙</button>
+    <button class="logout-btn" onclick="logout()">خروج</button>
   </div>
 </header>
 
 <div class="tabs">
-  <button class="tab-btn active" onclick="switchTab('add')">➕ أوردر جديد</button>
-  <button class="tab-btn" onclick="switchTab('orders')">📋 الأوردرات</button>
+  <button class="tab-btn active" onclick="switchTab('inventory')">📦 المخزن</button>
+  <button class="tab-btn" onclick="switchTab('add')">➕ إضافة</button>
+  <button class="tab-btn" onclick="switchTab('lend')">🔄 استعارة</button>
+  <button class="tab-btn" onclick="switchTab('log')">📋 السجل</button>
   <button class="tab-btn" onclick="switchTab('export')">📤 تصدير</button>
 </div>
 
-<!-- ═══════════════════════════════════════
-     PANEL 1 — ADD ORDER
-══════════════════════════════════════════ -->
-<div class="panel active" id="panel-add">
+<!-- ══════════════════════════════════
+     TAB 1 — INVENTORY
+══════════════════════════════════ -->
+<div class="panel active" id="panel-inventory">
+  <div class="stats-row" id="inv-stats"></div>
+  <div class="alert-banner" id="low-alert">⚠️ في أدوات وصلت للحد الأدنى — اتحقق منها</div>
 
-  <div class="section-card">
-    <div class="section-title">بيانات الأوردر</div>
-
-    <div class="field">
-      <label>نوع المنتج</label>
-      <div class="radio-group">
-        <input type="radio" name="product_type" id="pt1" value="بوابة"><label for="pt1">🚪 بوابة</label>
-        <input type="radio" name="product_type" id="pt2" value="استاند"><label for="pt2">🏗️ استاند</label>
-        <input type="radio" name="product_type" id="pt3" value="رف مخزن"><label for="pt3">📦 رف مخزن</label>
-        <input type="radio" name="product_type" id="pt4" value="سلم"><label for="pt4">🪜 سلم</label>
-        <input type="radio" name="product_type" id="pt5" value="حاجز"><label for="pt5">🔩 حاجز</label>
-        <input type="radio" name="product_type" id="pt6" value="تاني"><label for="pt6">⚙️ تاني</label>
-      </div>
-    </div>
-
-    <div class="field" id="field-other-product" style="display:none">
-      <label>اكتب نوع المنتج</label>
-      <input type="text" id="other_product" placeholder="مثال: هيكل معدني...">
-    </div>
-
-    <div class="field">
-      <label>اسم / وصف الأوردر (اختياري)</label>
-      <input type="text" id="order_desc" placeholder="مثال: بوابة منزلقة كبيرة للعميل أبو أحمد">
-    </div>
+  <div class="search-wrap">
+    <input type="text" id="search-input" placeholder="ابحث عن أداة..." oninput="renderInventory()">
+    <span class="search-icon">🔍</span>
   </div>
 
-  <div class="section-card">
-    <div class="section-title">المواصفات</div>
-
-    <div class="field">
-      <label>نوع الحديد الأساسي</label>
-      <div class="radio-group">
-        <input type="radio" name="iron_type" id="it1" value="مربع"><label for="it1">مربع</label>
-        <input type="radio" name="iron_type" id="it2" value="أنجل"><label for="it2">أنجل</label>
-        <input type="radio" name="iron_type" id="it3" value="مواسير"><label for="it3">مواسير</label>
-        <input type="radio" name="iron_type" id="it4" value="صاج"><label for="it4">صاج</label>
-        <input type="radio" name="iron_type" id="it5" value="مكس"><label for="it5">مكس</label>
-      </div>
-    </div>
-
-    <div class="field">
-      <label>الوزن التقريبي (كيلو)</label>
-      <input type="number" id="weight_kg" placeholder="مثال: 150" min="0">
-    </div>
-
-    <div class="field">
-      <label>عدد القطع</label>
-      <input type="number" id="num_pieces" placeholder="مثال: 3" min="1">
-    </div>
-
-    <div class="field">
-      <label>كمية اللحام</label>
-      <div class="radio-group">
-        <input type="radio" name="welding" id="w1" value="بسيط"><label for="w1">🔥 بسيط</label>
-        <input type="radio" name="welding" id="w2" value="متوسط"><label for="w2">🔥🔥 متوسط</label>
-        <input type="radio" name="welding" id="w3" value="كتير جداً"><label for="w3">🔥🔥🔥 كتير</label>
-      </div>
-    </div>
-
-    <div class="field">
-      <label>فيه دهان / تشطيب؟</label>
-      <div class="radio-group">
-        <input type="radio" name="finishing" id="f1" value="لأ"><label for="f1">لأ</label>
-        <input type="radio" name="finishing" id="f2" value="أيوه"><label for="f2">أيوه</label>
-      </div>
-    </div>
+  <div class="field">
+    <label>الفئة</label>
+    <select id="category-filter" onchange="renderInventory()">
+      <option value="all">كل الفئات</option>
+      <option value="مفاتيح">🔑 مفاتيح + عده خفيفه</option>
+      <option value="قياس">شنيور و مثقاب</option>
+      <option value="لحام">🔥 مكينة لحام</option>
+      <option value="قطع">⚙️ صواريخ</option>
+      <option value="كهرباء">⚡ كبلات كهرباء</option>
+      <option value="حماية">مستلزمات تشغيل</option>
+      <option value="تاني">📦 اخر</option>
+    </select>
   </div>
 
-  <div class="section-card">
-    <div class="section-title">التنفيذ</div>
-
-    <div class="field">
-      <label>عدد العمال المخصصين</label>
-      <input type="number" id="workers" placeholder="مثال: 2" min="1">
-    </div>
-
-    <div class="field">
-      <label>تاريخ استلام الأوردر</label>
-      <input type="date" id="date_received">
-    </div>
-
-    <div class="field">
-      <label>تاريخ التسليم المطلوب</label>
-      <input type="date" id="date_promised">
-    </div>
+  <div class="filter-row">
+    <button class="filter-btn active" onclick="setFilter('all', this)">الكل</button>
+    <button class="filter-btn" onclick="setFilter('متاح', this)">✅ متاح</button>
+    <button class="filter-btn" onclick="setFilter('قليل', this)">⚠️ قليل</button>
+    <button class="filter-btn" onclick="setFilter('نفد', this)">❌ نفد</button>
+    <button class="filter-btn" onclick="setFilter('معار', this)">🔄 معار</button>
   </div>
 
-  <button class="btn-primary" onclick="saveOrder()">💾 حفظ الأوردر</button>
+  <div class="view-toggle">
+    <button class="view-btn active" id="view-grid-btn" onclick="setView('grid')">🔲 كروت</button>
+    <button class="view-btn" id="view-list-btn" onclick="setView('list')">📃 قائمة</button>
+  </div>
+
+  <div id="inventory-list" class="view-grid"></div>
 </div>
 
-
-<!-- ═══════════════════════════════════════
-     PANEL 2 — ORDERS LIST
-══════════════════════════════════════════ -->
-<div class="panel" id="panel-orders">
-  <div class="stats-row" id="stats-row"></div>
-
-  <div class="toolbar">
-    <span class="toolbar-title">كل الأوردرات</span>
-    <button class="btn-secondary" onclick="renderOrders()">🔄</button>
-  </div>
-
-  <div id="orders-list"></div>
-</div>
-
-
-<!-- ═══════════════════════════════════════
-     PANEL 3 — EXPORT
-══════════════════════════════════════════ -->
-<div class="panel" id="panel-export">
+<!-- ══════════════════════════════════
+     TAB 2 — ADD TOOL
+══════════════════════════════════ -->
+<div class="panel" id="panel-add">
   <div class="section-card">
-    <div class="section-title">تصدير البيانات</div>
-    <p style="color:var(--muted); font-size:13px; line-height:1.8; margin-bottom:18px;">
-      صدّر كل الأوردرات كملف CSV جاهز للاستخدام في Python أو Excel لتدريب الموديل.
-    </p>
-    <button class="btn-primary" onclick="exportCSV()">⬇️ تحميل CSV</button>
-  </div>
-
-  <div class="section-card" style="margin-top:16px">
-    <div class="section-title" style="color:var(--danger)">خطر — مسح البيانات</div>
-    <p style="color:var(--muted); font-size:13px; margin-bottom:14px;">
-      امسح كل الأوردرات المحفوظة. مش هيرجع تاني.
-    </p>
-    <button class="btn-danger" onclick="clearAll()">🗑️ مسح كل البيانات</button>
-  </div>
-</div>
-
-
-<!-- ═══════════════════════════════════════
-     CLOSE ORDER MODAL
-══════════════════════════════════════════ -->
-<div class="modal-overlay" id="close-modal">
-  <div class="modal-box">
-    <div class="modal-title">✅ تسليم الأوردر</div>
+    <div class="section-title">بيانات الأداة</div>
 
     <div class="field">
-      <label>تاريخ التسليم الفعلي</label>
-      <input type="date" id="actual_delivery">
+      <label>اسم الأداة</label>
+      <input type="text" id="tool_name" placeholder="مثال: مفتاح ربط ١٩">
     </div>
 
     <div class="field">
-      <label>في مشاكل حصلت؟</label>
-      <div class="radio-group">
-        <input type="radio" name="issues" id="i0" value="لأ"><label for="i0">✅ لأ</label>
-        <input type="radio" name="issues" id="i1" value="خامة ناقصة"><label for="i1">خامة ناقصة</label>
-        <input type="radio" name="issues" id="i2" value="غياب عمال"><label for="i2">غياب عمال</label>
-        <input type="radio" name="issues" id="i3" value="تعديل العميل"><label for="i3">تعديل العميل</label>
+      <label>نوع الصنف</label>
+      <div class="radio-group" style="grid-template-columns:1fr 1fr">
+        <input type="radio" name="item_type" id="it1" value="tool" checked><label for="it1">🔧 أداة/عدة — لازم ترجع المخزن</label>
+        <input type="radio" name="item_type" id="it2" value="good"><label for="it2">📦 بضاعة/مستهلك — بتتصرف من غير رجوع</label>
       </div>
+    </div>
+
+    <div class="field">
+      <label>الفئة</label>
+      <div class="radio-group">
+        <input type="radio" name="category" id="c1" value="مفاتيح"><label for="c1">🔑 مفاتيح + عده خفيفه </label>
+        <input type="radio" name="category" id="c2" value="قياس"><label for="c2">شنيور و مثقاب </label>
+        <input type="radio" name="category" id="c3" value="لحام"><label for="c3">🔥 مكينة لحام</label>
+        <input type="radio" name="category" id="c4" value="قطع"><label for="c4">⚙️ صواريخ</label>
+        <input type="radio" name="category" id="c5" value="كهرباء"><label for="c5">⚡ كبلات كهرباء</label>
+        <input type="radio" name="category" id="c6" value="حماية"><label for="c6">مستلزمات تشغيل</label>
+        <input type="radio" name="category" id="c7" value="تاني"><label for="c7">📦 اخر</label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>الوحدة</label>
+      <div class="radio-group">
+        <input type="radio" name="unit" id="u1" value="قطعة"><label for="u1">قطعة</label>
+        <input type="radio" name="unit" id="u2" value="طقم"><label for="u2">طقم</label>
+        <input type="radio" name="unit" id="u3" value="متر"><label for="u3">متر</label>
+        <input type="radio" name="unit" id="u4" value="كيلو"><label for="u4">كيلو</label>
+        <input type="radio" name="unit" id="u5" value="كرتونه"><label for="u5">كرتونه</label>
+        <input type="radio" name="unit" id="u6" value="باكو"><label for="u6">باكو</label>
+        <input type="radio" name="unit" id="u7" value="علبه"><label for="u7">علبه</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-title">الكميات</div>
+
+    <div class="field">
+      <label>الكمية الحالية</label>
+      <input type="number" id="qty_current" placeholder="مثال: 5" min="0">
+    </div>
+
+    <div class="field">
+      <label>الحد الأدنى (تنبيه لما تقل عنه)</label>
+      <input type="number" id="qty_min" placeholder="مثال: 2" min="0">
+    </div>
+
+    <div class="field">
+      <label>موقع التخزين (اختياري)</label>
+      <input type="text" id="location" placeholder="مثال: رف A - درج 3">
     </div>
 
     <div class="field">
       <label>ملاحظات (اختياري)</label>
-      <textarea id="close_notes" placeholder="أي تفاصيل تانية..."></textarea>
+      <input type="text" id="tool_notes" placeholder="مثال: للحام فقط">
+    </div>
+  </div>
+
+  <button class="btn-primary" onclick="addTool()">💾 إضافة الأداة للمخزن</button>
+</div>
+
+<!-- ══════════════════════════════════
+     TAB 3 — LEND / RETURN
+══════════════════════════════════ -->
+<div class="panel" id="panel-lend">
+  <div class="section-card">
+    <div class="section-title">إخراج / صرف صنف</div>
+
+    <div class="field">
+      <label>اختار الصنف</label>
+      <div class="combo-wrap">
+        <input type="text" id="lend_tool_search" class="combo-input" placeholder="ابحث عن أداة أو بضاعة..." autocomplete="off" oninput="filterCombo('lend')" onfocus="filterCombo('lend')">
+        <input type="hidden" id="lend_tool_id">
+        <div class="combo-dropdown" id="lend_tool_dropdown"></div>
+      </div>
+      <div class="combo-hint" id="lend_type_hint" style="display:none"></div>
     </div>
 
-    <button class="btn-primary" onclick="submitClose()" style="background:var(--amber)">✅ تأكيد التسليم</button>
-    <button class="btn-secondary" onclick="closeModal()" style="width:100%; margin-top:10px; text-align:center">إلغاء</button>
+    <div class="field">
+      <label>اسم العامل</label>
+      <input type="text" id="lend_worker" placeholder="مثال: محمود الحداد">
+    </div>
+
+    <div class="field">
+      <label>الكمية</label>
+      <input type="number" id="lend_qty" value="1" min="1">
+    </div>
+
+    <div class="field">
+      <label>السبب / الاستخدام (اختياري)</label>
+      <input type="text" id="lend_reason" placeholder="مثال: لحام بوابة العميل">
+    </div>
+
+    <button class="btn-primary" onclick="lendTool()">📤 إخراج</button>
+  </div>
+
+  <div class="section-card">
+    <div class="section-title">إرجاع أداة</div>
+
+    <div class="field">
+      <label>اختار الأداة</label>
+      <div class="combo-wrap">
+        <input type="text" id="return_tool_search" class="combo-input" placeholder="ابحث عن أداة..." autocomplete="off" oninput="filterCombo('return')" onfocus="filterCombo('return')">
+        <input type="hidden" id="return_tool_id">
+        <div class="combo-dropdown" id="return_tool_dropdown"></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>اسم العامل</label>
+      <input type="text" id="return_worker" placeholder="مثال: محمود الحداد">
+    </div>
+
+    <div class="field">
+      <label>الكمية</label>
+      <input type="number" id="return_qty" value="1" min="1">
+    </div>
+
+    <div class="field">
+      <label>حالة الأداة بعد الإرجاع</label>
+      <div class="radio-group">
+        <input type="radio" name="return_cond" id="rc1" value="كويسة"><label for="rc1">✅ كويسة</label>
+        <input type="radio" name="return_cond" id="rc2" value="تالفة"><label for="rc2">⚠️ تالفة</label>
+        <input type="radio" name="return_cond" id="rc3" value="مكسورة"><label for="rc3">❌ مكسورة</label>
+      </div>
+    </div>
+
+    <button class="btn-primary btn-success-grad" onclick="returnTool()">📥 إرجاع</button>
   </div>
 </div>
 
-<div id="toast">تم الحفظ ✓</div>
+<!-- ══════════════════════════════════
+     TAB 4 — LOG
+══════════════════════════════════ -->
+<div class="panel" id="panel-log">
+  <div class="toolbar">
+    <span class="toolbar-title">سجل الحركات</span>
+    <button class="btn-secondary" onclick="renderLog()">🔄</button>
+  </div>
 
+  <div class="search-wrap">
+    <input type="text" id="log-search-input" placeholder="ابحث بالاسم، العامل، السبب..." oninput="renderLog()">
+    <span class="search-icon">🔍</span>
+  </div>
+
+  <div class="filter-row" id="log-filter-row">
+    <button class="filter-btn active" onclick="setLogFilter('all', this)">الكل</button>
+    <button class="filter-btn" onclick="setLogFilter('إخراج', this)">📤 إخراج</button>
+    <button class="filter-btn" onclick="setLogFilter('صرف', this)">📦 صرف</button>
+    <button class="filter-btn" onclick="setLogFilter('إرجاع', this)">📥 إرجاع</button>
+    <button class="filter-btn" onclick="setLogFilter('إضافة', this)">➕ إضافة</button>
+  </div>
+
+  <div id="log-list"></div>
+</div>
+
+<!-- ══════════════════════════════════
+     TAB 5 — EXPORT
+══════════════════════════════════ -->
+<div class="panel" id="panel-export">
+  <div class="section-card">
+    <div class="section-title">تصدير المخزن</div>
+    <p style="color:var(--muted);font-size:13px;line-height:1.8;margin-bottom:16px">
+      صدّر كل الأدوات وحالتها كملف CSV.
+    </p>
+    <button class="btn-primary" onclick="exportInventoryCSV()">⬇️ تحميل CSV — المخزن</button>
+  </div>
+  <div class="section-card" style="margin-top:14px">
+    <div class="section-title">تصدير السجل</div>
+    <p style="color:var(--muted);font-size:13px;line-height:1.8;margin-bottom:16px">
+      صدّر كل حركات الإخراج والصرف والإرجاع.
+    </p>
+    <button class="btn-primary btn-steel-grad" onclick="exportLogCSV()">⬇️ تحميل CSV — السجل</button>
+  </div>
+  <div class="section-card" style="margin-top:14px">
+    <div class="section-title" style="color:var(--danger)">خطر</div>
+    <button class="btn-sm danger" onclick="clearAll()">🗑️ مسح كل البيانات</button>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal-box">
+    <div class="modal-title">✏️ تعديل الأداة</div>
+    <input type="hidden" id="edit_id">
+    <div class="field"><label>اسم الأداة</label><input type="text" id="edit_name"></div>
+    <div class="field">
+      <label>نوع الصنف</label>
+      <div class="radio-group" style="grid-template-columns:1fr 1fr">
+        <input type="radio" name="edit_item_type" id="eit1" value="tool"><label for="eit1">🔧 أداة — لازم ترجع</label>
+        <input type="radio" name="edit_item_type" id="eit2" value="good"><label for="eit2">📦 بضاعة — بتتصرف</label>
+      </div>
+    </div>
+    <div class="field"><label>الكمية الحالية</label><input type="number" id="edit_qty" min="0"></div>
+    <div class="field"><label>الحد الأدنى</label><input type="number" id="edit_min" min="0"></div>
+    <div class="field"><label>موقع التخزين</label><input type="text" id="edit_loc"></div>
+    <div class="field"><label>ملاحظات</label><input type="text" id="edit_note"></div>
+    <button class="btn-primary" onclick="saveEdit()">💾 حفظ التعديل</button>
+    <button class="btn-secondary" onclick="closeEditModal()" style="width:100%;margin-top:10px;text-align:center">إلغاء</button>
+  </div>
+</div>
+
+<div id="toast">تم ✓</div>
+
+</div><!-- /#app-shell -->
+
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
 <script>
-  // ── Storage helpers ──────────────────────────
-  const STORE = 'prismops_orders';
-  let activeCloseId = null;
+// ── Firebase Config ─────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyCkj-hGssEeI9-oVBoKjRdTGeUThUEcI",
+  authDomain: "prism-factory.firebaseapp.com",
+  projectId: "prism-factory",
+  storageBucket: "prism-factory.firebasestorage.app",
+  messagingSenderId: "236073341904",
+  appId: "1:236073341904:web:3abf50039f21ae08e3dfd5",
+  measurementId: "G-WF3S1TPQEG"
+};
 
-  function getOrders() {
-    try { return JSON.parse(localStorage.getItem(STORE)) || []; }
-    catch { return []; }
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// مصفوفات محلية مؤقتة عشان الـ Render يشتغل بسرعة
+let localToolsArray = [];
+let localLogArray = [];
+let currentFilter = 'all';
+let currentLogFilter = 'all';
+let currentView = 'grid';
+let comboToolsCache = { lend: [], return: [] };
+
+// ── Realtime Synchronization (الربط اللحظي) ──
+// 1. مراقبة الأدوات
+db.collection("prismops_tools").onSnapshot((snapshot) => {
+  localToolsArray = [];
+  snapshot.forEach((doc) => {
+    localToolsArray.push({ docId: doc.id, ...doc.data() });
+  });
+  renderInventory();
+  populateLendSelects();
+});
+
+// 2. مراقبة السجل
+db.collection("prismops_tool_log").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
+  localLogArray = [];
+  snapshot.forEach((doc) => {
+    localLogArray.push(doc.data());
+  });
+  renderLog();
+});
+
+// ── Storage Alternatives ─────────────────────
+function getTools() { return localToolsArray; }
+function getLog()   { return localLogArray; }
+function genId() { return 'T-' + Date.now().toString(36).toUpperCase(); }
+
+// ── Login (شير باسورد بسيط للورشة) ───────────
+// غيّر كلمة السر هنا وقتما تحب — دي حماية بسيطة مش تشفير حقيقي
+const APP_PASSWORD = "prismops2026";
+const AUTH_KEY = "prismops_authed";
+
+function showApp() {
+  document.getElementById('login-overlay').style.display = 'none';
+  document.getElementById('app-shell').style.display = 'block';
+}
+function showLogin() {
+  document.getElementById('app-shell').style.display = 'none';
+  document.getElementById('login-overlay').style.display = 'flex';
+  const pass = document.getElementById('login-password');
+  if (pass) { pass.value = ''; setTimeout(() => pass.focus(), 50); }
+}
+
+function attemptLogin() {
+  const input = document.getElementById('login-password');
+  const errorBox = document.getElementById('login-error');
+  const card = document.getElementById('login-card');
+  const entered = input.value;
+
+  if (entered === APP_PASSWORD) {
+    try { localStorage.setItem(AUTH_KEY, '1'); } catch(e) {}
+    errorBox.style.display = 'none';
+    showApp();
+  } else {
+    errorBox.style.display = 'block';
+    card.classList.remove('shake');
+    void card.offsetWidth; // إعادة تشغيل الأنيميشن
+    card.classList.add('shake');
+    input.value = '';
+    input.focus();
   }
-  function saveOrders(arr) {
-    localStorage.setItem(STORE, JSON.stringify(arr));
+}
+
+function logout() {
+  if (!confirm('تسجيل خروج من البرنامج؟')) return;
+  try { localStorage.removeItem(AUTH_KEY); } catch(e) {}
+  showLogin();
+}
+
+(function checkAuth() {
+  let authed = false;
+  try { authed = localStorage.getItem(AUTH_KEY) === '1'; } catch(e) {}
+  if (authed) showApp(); else showLogin();
+})();
+
+// ── Theme (light / dark) ─────────────────────
+function setTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  try { localStorage.setItem('prismops_theme', theme); } catch(e) {}
+  const btn = document.getElementById('theme-toggle-btn');
+  if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+}
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  setTheme(current === 'dark' ? 'light' : 'dark');
+}
+// sync the button icon with whatever theme the early inline script already applied
+setTheme(document.documentElement.getAttribute('data-theme') || 'light');
+
+// ── Tabs ─────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  const idx = ['inventory','add','lend','log','export'].indexOf(name);
+  if (idx !== -1) document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+  if (name === 'inventory') renderInventory();
+  if (name === 'lend')      populateLendSelects();
+  if (name === 'log')       renderLog();
+}
+
+// ── Filter (inventory) ───────────────────────
+function setFilter(val, btn) {
+  currentFilter = val;
+  document.querySelectorAll('#panel-inventory .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderInventory();
+}
+
+// ── View mode (grid / list) ──────────────────
+function setView(mode) {
+  currentView = mode;
+  const list = document.getElementById('inventory-list');
+  if (list) {
+    list.classList.toggle('view-grid', mode === 'grid');
+    list.classList.toggle('view-list', mode === 'list');
   }
-  function genId() {
-    return 'ORD-' + Date.now().toString(36).toUpperCase();
+  const gridBtn = document.getElementById('view-grid-btn');
+  const listBtn = document.getElementById('view-list-btn');
+  if (gridBtn) gridBtn.classList.toggle('active', mode === 'grid');
+  if (listBtn) listBtn.classList.toggle('active', mode === 'list');
+}
+
+// ── Filter (log) ─────────────────────────────
+function setLogFilter(val, btn) {
+  currentLogFilter = val;
+  document.querySelectorAll('#log-filter-row .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderLog();
+}
+
+// ── Status helpers ───────────────────────────
+function getStatus(t) {
+  const type = t.item_type || 'tool'; // توافق مع الأصناف القديمة اللي مفيهاش النوع
+  if (type === 'tool' && (t.lent_qty || 0) > 0) return 'معار';
+  if (t.qty_current <= 0)         return 'نفد';
+  if (t.qty_current <= t.qty_min) return 'قليل';
+  return 'متاح';
+}
+function statusBadge(s) {
+  const map = { 'متاح':'badge-ok','قليل':'badge-low','نفد':'badge-out','معار':'badge-lent' };
+  return `<span class="badge ${map[s]||'badge-ok'}">${s}</span>`;
+}
+function barColor(s) {
+  return s==='نفد'?'var(--danger)':s==='قليل'?'var(--warn)':s==='معار'?'var(--steel)':'var(--success)';
+}
+
+// ── Render Inventory ─────────────────────────
+function renderInventory() {
+  let tools = getTools();
+  const searchInput = document.getElementById('search-input');
+  const q = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
+  const categoryFilterEl = document.getElementById('category-filter');
+  const categoryFilter = categoryFilterEl ? categoryFilterEl.value : 'all';
+
+  if (q) tools = tools.filter(t => t.name.toLowerCase().includes(q) || (t.category||'').toLowerCase().includes(q));
+  if (currentFilter !== 'all') tools = tools.filter(t => getStatus(t) === currentFilter);
+  if (categoryFilter && categoryFilter !== 'all') tools = tools.filter(t => t.category === categoryFilter);
+
+  const all = getTools();
+  const total  = all.length;
+  const avail  = all.filter(t => getStatus(t) === 'متاح').length;
+  const low    = all.filter(t => t.qty_current > 0 && t.qty_current <= t.qty_min).length;
+  const out    = all.filter(t => t.qty_current <= 0).length;
+  const lent   = all.filter(t => getStatus(t) === 'معار').length;
+
+  const invStats = document.getElementById('inv-stats');
+  if (invStats) {
+    invStats.innerHTML = `
+      <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">إجمالي</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--success)">${avail}</div><div class="stat-label">متاح</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--warn)">${low}</div><div class="stat-label">قليل</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--steel)">${lent}</div><div class="stat-label">معار</div></div>
+    `;
   }
 
-  // ── Tab switching ────────────────────────────
-  function switchTab(name) {
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('panel-' + name).classList.add('active');
-    const idx = ['add','orders','export'].indexOf(name);
-    document.querySelectorAll('.tab-btn')[idx].classList.add('active');
-    if (name === 'orders') renderOrders();
+  const alertBanner = document.getElementById('low-alert');
+  if (alertBanner) {
+    alertBanner.classList.toggle('show', low > 0 || out > 0);
   }
 
-  // ── Form: handle "other" product type ──────
-  document.querySelectorAll('[name=product_type]').forEach(r => {
-    r.addEventListener('change', () => {
-      document.getElementById('field-other-product').style.display =
-        r.value === 'تاني' && r.checked ? 'block' : 'none';
-    });
+  const list = document.getElementById('inventory-list');
+  if (!list) return;
+
+  if (!tools.length) {
+    const hasActiveFilters = q || currentFilter !== 'all' || (categoryFilter && categoryFilter !== 'all');
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📦</div><p>${hasActiveFilters?'مفيش نتايج':'المخزن فاضي — ابدأ بإضافة أدوات'}</p></div>`;
+    return;
+  }
+
+  list.innerHTML = tools.map(t => {
+    const st  = getStatus(t);
+    const type = t.item_type || 'tool';
+    const isOutOfStock = t.qty_current <= 0;
+    const isLowStock   = !isOutOfStock && t.qty_current <= t.qty_min;
+    const max = Math.max(t.qty_current + (t.lent_qty||0), t.qty_min || 1, 1);
+    const pct = Math.round((t.qty_current / max) * 100);
+    return `
+      <div class="tool-card ${isLowStock?'low-stock':isOutOfStock?'out-stock':''}">
+        <div class="tool-header">
+          <div>
+            <div class="tool-id">${t.id} · ${t.category||'عام'} · ${type==='good' ? '📦 بضاعة' : '🔧 أداة'}</div>
+            <div class="tool-name">${t.name}</div>
+          </div>
+          ${statusBadge(st)}
+        </div>
+        <div class="tool-meta">
+          <div class="meta-chip">📦 <span>${t.qty_current} ${t.unit||'قطعة'}</span></div>
+          ${t.qty_min ? `<div class="meta-chip">⚠️ حد أدنى <span>${t.qty_min}</span></div>` : ''}
+          ${t.lent_qty ? `<div class="meta-chip">🔄 معار <span>${t.lent_qty}</span></div>` : ''}
+          ${t.location ? `<div class="meta-chip">📍 <span>${t.location}</span></div>` : ''}
+        </div>
+        <div class="qty-bar-wrap">
+          <div class="qty-bar" style="width:${pct}%;background:${barColor(st)}"></div>
+        </div>
+        <div class="tool-actions">
+          <button class="btn-sm success" onclick="quickAdd('${t.docId}')">+ إضافة</button>
+          <button class="btn-sm warn"    onclick="openEditModal('${t.docId}')">✏️ تعديل</button>
+          <button class="btn-sm danger"  onclick="deleteTool('${t.docId}')">🗑️ حذف</button>
+        </div>
+        ${t.notes ? `<div style="font-size:12px;color:var(--muted);margin-top:8px">📝 ${t.notes}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+// ── Add Tool ─────────────────────────────────
+function addTool() {
+  const v = id => document.getElementById(id).value.trim();
+  const radio = name => { const el = document.querySelector(`[name=${name}]:checked`); return el ? el.value : ''; };
+
+  if (!v('tool_name'))    return alert('اكتب اسم الأداة');
+  if (!radio('item_type')) return alert('اختار نوع الصنف');
+  if (!radio('category')) return alert('اختار الفئة');
+  if (!radio('unit'))     return alert('اختار الوحدة');
+  if (v('qty_current') === '') return alert('اكتب الكمية');
+
+  const generatedId = genId();
+  const tool = {
+    id:          generatedId,
+    name:         v('tool_name'),
+    item_type:    radio('item_type'), // 'tool' لازم ترجع المخزن، 'good' بيتصرف من غير رجوع
+    category:     radio('category'),
+    unit:         radio('unit'),
+    qty_current:  parseInt(v('qty_current')) || 0,
+    qty_min:      parseInt(v('qty_min'))     || 0,
+    lent_qty:     0,
+    location:     v('location'),
+    notes:        v('tool_notes'),
+    added_at:     new Date().toISOString()
+  };
+
+  db.collection("prismops_tools").add(tool).then(() => {
+    addLog('إضافة', generatedId, tool.name, tool.qty_current, null, null, null);
+    showToast('تمت الإضافة للسحاب ✓');
   });
 
-  // ── Set today as default date ───────────────
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('date_received').value = today;
+  // reset UI
+  document.querySelectorAll('[name=category],[name=unit]').forEach(r => r.checked = false);
+  document.getElementById('it1').checked = true; // رجّع الافتراضي لـ "أداة"
+  ['tool_name','qty_current','qty_min','location','tool_notes'].forEach(id => document.getElementById(id).value = '');
+}
 
-  // ── Save new order ───────────────────────────
-  function saveOrder() {
-    const get = id => document.getElementById(id).value.trim();
-    const radio = name => {
-      const el = document.querySelector(`[name=${name}]:checked`);
-      return el ? el.value : '';
-    };
+// ── Quick add qty ────────────────────────────
+function quickAdd(docId) {
+  const q = prompt('كام تضيف من الكمية؟', '1');
+  const n = parseInt(q);
+  if (!n || n <= 0) return;
 
-    const product_type = radio('product_type') === 'تاني'
-      ? get('other_product') || 'تاني'
-      : radio('product_type');
+  const t = localToolsArray.find(x => x.docId === docId);
+  if (!t) return;
 
-    if (!product_type)           return alert('اختار نوع المنتج');
-    if (!radio('iron_type'))     return alert('اختار نوع الحديد');
-    if (!radio('welding'))       return alert('اختار كمية اللحام');
-    if (!radio('finishing'))     return alert('فيه دهان ولا لأ؟');
-    if (!get('date_received'))   return alert('اكتب تاريخ استلام الأوردر');
-    if (!get('date_promised'))   return alert('اكتب تاريخ التسليم المطلوب');
+  db.collection("prismops_tools").doc(docId).update({
+    qty_current: t.qty_current + n
+  }).then(() => {
+    addLog('إضافة كمية', t.id, t.name, n, null, null, null);
+    showToast(`تمت إضافة ${n} ${t.unit} ✓`);
+  });
+}
 
-    const receivedD  = new Date(get('date_received'));
-    const promisedD  = new Date(get('date_promised'));
-    const promised_days = Math.round((promisedD - receivedD) / 86400000);
+// ── Lend / Return: searchable combobox ───────
+function populateLendSelects() {
+  const tools = getTools();
+  comboToolsCache.lend   = tools.filter(t => t.qty_current > 0);
+  comboToolsCache.return = tools.filter(t => (t.item_type || 'tool') === 'tool' && (t.lent_qty||0) > 0);
+  renderComboDropdown('lend', comboToolsCache.lend);
+  renderComboDropdown('return', comboToolsCache.return);
+}
 
-    const order = {
-      id:             genId(),
-      timestamp:      new Date().toISOString(),
-      product_type,
-      order_desc:     get('order_desc'),
-      iron_type:      radio('iron_type'),
-      weight_kg:      parseFloat(get('weight_kg')) || null,
-      num_pieces:     parseInt(get('num_pieces'))  || null,
-      welding_complexity: radio('welding'),
-      finishing:      radio('finishing'),
-      workers_assigned: parseInt(get('workers')) || null,
-      date_received:  get('date_received'),
-      date_promised:  get('date_promised'),
-      promised_days,
-      // filled later
-      date_actual:    null,
-      actual_days:    null,
-      delay_days:     null,
-      is_late:        null,
-      issues:         null,
-      close_notes:    null,
-      status:         'مفتوح'
-    };
+function filterCombo(type) {
+  const input = document.getElementById(type + '_tool_search');
+  if (!input) return;
+  const q = input.value.trim().toLowerCase();
+  const source = comboToolsCache[type] || [];
+  const filtered = q
+    ? source.filter(t => t.name.toLowerCase().includes(q) || (t.category||'').toLowerCase().includes(q))
+    : source;
+  renderComboDropdown(type, filtered);
+  openCombo(type);
+}
 
-    const orders = getOrders();
-    orders.unshift(order);
-    saveOrders(orders);
-    showToast('تم حفظ الأوردر ✓');
-    resetForm();
+function renderComboDropdown(type, list) {
+  const dd = document.getElementById(type + '_tool_dropdown');
+  if (!dd) return;
+  if (!list.length) {
+    dd.innerHTML = `<div class="combo-empty">مفيش أدوات مطابقة</div>`;
+    return;
   }
+  dd.innerHTML = list.map(t => {
+    const isGood = (t.item_type || 'tool') === 'good';
+    const meta = type === 'lend'
+      ? `متاح: ${t.qty_current} ${t.unit||''} · ${isGood ? '📦 بضاعة' : '🔧 أداة'}`
+      : `معار: ${t.lent_qty} ${t.unit||''}`;
+    return `
+    <div class="combo-item" onclick="selectComboItem('${type}','${t.docId}')">
+      <span class="combo-item-name">${t.name}</span>
+      <span class="combo-item-meta">${meta}</span>
+    </div>
+  `;
+  }).join('');
+}
 
-  function resetForm() {
-    document.querySelectorAll('[name=product_type],[name=iron_type],[name=welding],[name=finishing]')
-      .forEach(r => r.checked = false);
-    ['order_desc','other_product','weight_kg','num_pieces','workers','date_promised'].forEach(id => {
-      document.getElementById(id).value = '';
-    });
-    document.getElementById('date_received').value = today;
-    document.getElementById('field-other-product').style.display = 'none';
-  }
+function selectComboItem(type, docId) {
+  const source = comboToolsCache[type] || [];
+  const t = source.find(x => x.docId === docId);
+  if (!t) return;
+  document.getElementById(type + '_tool_id').value = docId;
+  document.getElementById(type + '_tool_search').value = t.name;
+  closeCombo(type);
 
-  // ── Render orders list ───────────────────────
-  function renderOrders() {
-    const orders = getOrders();
-    const list = document.getElementById('orders-list');
-
-    // Stats
-    const total   = orders.length;
-    const open    = orders.filter(o => o.status === 'مفتوح').length;
-    const closed  = orders.filter(o => o.status !== 'مفتوح').length;
-    const ontime  = orders.filter(o => o.is_late === false).length;
-    const lateC   = orders.filter(o => o.is_late === true).length;
-
-    document.getElementById('stats-row').innerHTML = `
-      <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">إجمالي</div></div>
-      <div class="stat-card"><div class="stat-num" style="color:var(--amber)">${open}</div><div class="stat-label">مفتوح</div></div>
-      <div class="stat-card"><div class="stat-num" style="color:var(--success)">${ontime}</div><div class="stat-label">في الميعاد</div></div>
-    `;
-
-    if (!orders.length) {
-      list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>مفيش أوردرات لسه — ابدأ بتسجيل أول أوردر</p></div>`;
-      return;
+  if (type === 'lend') {
+    const hint = document.getElementById('lend_type_hint');
+    if (hint) {
+      const isGood = (t.item_type || 'tool') === 'good';
+      hint.style.display = 'block';
+      hint.className = isGood ? 'combo-hint combo-hint-good' : 'combo-hint combo-hint-tool';
+      hint.textContent = isGood
+        ? '📦 صنف بضاعة/مستهلك — هيتصرف من المخزون ومش هيتسجل في "معار" ولا محتاج ترجيع'
+        : '🔧 صنف أداة/عدة — هتتسجل في "معار" ولازم ترجع المخزن بعد الاستخدام';
     }
-
-    list.innerHTML = orders.map(o => {
-      let badge = '';
-      if      (o.status === 'مفتوح') badge = `<span class="badge badge-open">مفتوح</span>`;
-      else if (o.is_late === true)   badge = `<span class="badge badge-late">تأخر ${o.delay_days} يوم</span>`;
-      else                            badge = `<span class="badge badge-ontime">في الميعاد</span>`;
-
-      const closeBtn = o.status === 'مفتوح'
-        ? `<button class="btn-close-order" onclick="openCloseModal('${o.id}')">✅ تسجيل التسليم</button>`
-        : '';
-
-      const chips = [
-        o.iron_type     ? `<div class="meta-chip">🔩 <span>${o.iron_type}</span></div>` : '',
-        o.weight_kg     ? `<div class="meta-chip">⚖️ <span>${o.weight_kg} كيلو</span></div>` : '',
-        o.num_pieces    ? `<div class="meta-chip">📦 <span>${o.num_pieces} قطعة</span></div>` : '',
-        o.workers_assigned ? `<div class="meta-chip">👷 <span>${o.workers_assigned} عمال</span></div>` : '',
-        o.promised_days ? `<div class="meta-chip">📅 <span>${o.promised_days} يوم مهلة</span></div>` : '',
-        `<div class="meta-chip">🔥 <span>${o.welding_complexity || '—'}</span></div>`,
-      ].filter(Boolean).join('');
-
-      return `
-        <div class="order-card">
-          <div class="order-header">
-            <div>
-              <div class="order-id">${o.id} · ${o.date_received || ''}</div>
-              <div class="order-type">${o.product_type}${o.order_desc ? ' — ' + o.order_desc : ''}</div>
-            </div>
-            ${badge}
-          </div>
-          <div class="order-meta">${chips}</div>
-          ${closeBtn}
-          <div style="margin-top:8px">
-            <button class="btn-danger" onclick="deleteOrder('${o.id}')">🗑️ حذف</button>
-          </div>
-        </div>
-      `;
-    }).join('');
   }
+}
 
-  // ── Close order modal ───────────────────────
-  function openCloseModal(id) {
-    activeCloseId = id;
-    document.getElementById('actual_delivery').value = today;
-    document.querySelectorAll('[name=issues]').forEach(r => r.checked = false);
-    document.getElementById('close_notes').value = '';
-    document.getElementById('close-modal').classList.add('open');
-  }
-  function closeModal() {
-    document.getElementById('close-modal').classList.remove('open');
-    activeCloseId = null;
-  }
-  function submitClose() {
-    const actualVal = document.getElementById('actual_delivery').value;
-    if (!actualVal) return alert('اكتب تاريخ التسليم الفعلي');
-    const issueEl = document.querySelector('[name=issues]:checked');
-    if (!issueEl) return alert('اختار لو في مشكلة ولا لأ');
+function openCombo(type) {
+  const dd = document.getElementById(type + '_tool_dropdown');
+  if (dd) dd.classList.add('open');
+}
+function closeCombo(type) {
+  const dd = document.getElementById(type + '_tool_dropdown');
+  if (dd) dd.classList.remove('open');
+}
 
-    const orders = getOrders();
-    const order  = orders.find(o => o.id === activeCloseId);
-    if (!order) return;
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('#lend_tool_dropdown') && !e.target.closest('#lend_tool_search'))     closeCombo('lend');
+  if (!e.target.closest('#return_tool_dropdown') && !e.target.closest('#return_tool_search')) closeCombo('return');
+});
 
-    const actualD   = new Date(actualVal);
-    const promisedD = new Date(order.date_promised);
-    const delay_days = Math.round((actualD - promisedD) / 86400000);
-    const receivedD  = new Date(order.date_received);
-    const actual_days = Math.round((actualD - receivedD) / 86400000);
+function lendTool() {
+  const docId = document.getElementById('lend_tool_id').value;
+  const worker = document.getElementById('lend_worker').value.trim();
+  const qty    = parseInt(document.getElementById('lend_qty').value) || 0;
+  const reason = document.getElementById('lend_reason').value.trim();
 
-    order.date_actual  = actualVal;
-    order.actual_days  = actual_days;
-    order.delay_days   = delay_days;
-    order.is_late      = delay_days > 0;
-    order.issues       = issueEl.value;
-    order.close_notes  = document.getElementById('close_notes').value.trim();
-    order.status       = 'مغلق';
+  if (!docId) return alert('اختار الصنف');
+  if (!worker) return alert('اكتب اسم العامل');
+  if (qty <= 0) return alert('الكمية لازم تكون أكبر من صفر');
 
-    saveOrders(orders);
-    closeModal();
-    showToast(delay_days > 0 ? `تأخر ${delay_days} يوم — تم التسجيل` : 'سُلّم في الميعاد ✓');
-    renderOrders();
-  }
+  const t = localToolsArray.find(x => x.docId === docId);
+  if (!t) return;
+  if (qty > t.qty_current) return alert(`في المخزن بس ${t.qty_current} ${t.unit}`);
 
-  // ── Delete order ────────────────────────────
-  function deleteOrder(id) {
-    if (!confirm('تحذف الأوردر ده؟')) return;
-    saveOrders(getOrders().filter(o => o.id !== id));
-    renderOrders();
-  }
+  const isGood = (t.item_type || 'tool') === 'good';
 
-  // ── Export CSV ──────────────────────────────
-  function exportCSV() {
-    const orders = getOrders();
-    if (!orders.length) return alert('مفيش بيانات للتصدير');
-
-    const cols = [
-      'id','timestamp','product_type','order_desc',
-      'iron_type','weight_kg','num_pieces','welding_complexity','finishing',
-      'workers_assigned','date_received','date_promised','promised_days',
-      'date_actual','actual_days','delay_days','is_late','issues','close_notes','status'
-    ];
-
-    const rows = [cols.join(',')];
-    orders.forEach(o => {
-      rows.push(cols.map(c => {
-        const v = o[c] ?? '';
-        return typeof v === 'string' && v.includes(',') ? `"${v}"` : v;
-      }).join(','));
+  if (isGood) {
+    // بضاعة/مستهلك: بيتصرف نهائي من المخزون، من غير تسجيل "معار" ومن غير انتظار رجوع
+    db.collection("prismops_tools").doc(docId).update({
+      qty_current: t.qty_current - qty
+    }).then(() => {
+      addLog('صرف', t.id, t.name, qty, worker, reason, null);
+      showToast(`تم صرف ${qty} ${t.unit} لـ ${worker}`);
     });
-
-    const blob = new Blob(['\uFEFF' + rows.join('\n')], { type: 'text/csv;charset=utf-8' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `prismops_orders_${today}.csv`;
-    a.click();
-    showToast('تم التحميل ✓');
+  } else {
+    // أداة/عدة: بتتسجل معارة ولازم ترجع المخزن
+    db.collection("prismops_tools").doc(docId).update({
+      qty_current: t.qty_current - qty,
+      lent_qty: (t.lent_qty || 0) + qty
+    }).then(() => {
+      addLog('إخراج', t.id, t.name, qty, worker, reason, null);
+      showToast(`تم إخراج ${qty} ${t.unit} لـ ${worker}`);
+    });
   }
 
-  // ── Clear all ───────────────────────────────
-  function clearAll() {
-    if (!confirm('متأكد إنك عايز تمسح كل البيانات؟ مش هيرجع تاني.')) return;
-    localStorage.removeItem(STORE);
-    showToast('تم المسح');
+  document.getElementById('lend_worker').value = '';
+  document.getElementById('lend_reason').value = '';
+  document.getElementById('lend_qty').value = '1';
+  document.getElementById('lend_tool_search').value = '';
+  document.getElementById('lend_tool_id').value = '';
+  const hint = document.getElementById('lend_type_hint');
+  if (hint) hint.style.display = 'none';
+}
+
+function returnTool() {
+  const docId = document.getElementById('return_tool_id').value;
+  const worker = document.getElementById('return_worker').value.trim();
+  const qty    = parseInt(document.getElementById('return_qty').value) || 0;
+  const condEl = document.querySelector('[name=return_cond]:checked');
+
+  if (!docId)  return alert('اختار الأداة');
+  if (!worker)  return alert('اكتب اسم العامل');
+  if (qty <= 0) return alert('الكمية لازم تكون أكبر من صفر');
+  if (!condEl)  return alert('اختار حالة الأداة');
+
+  const t = localToolsArray.find(x => x.docId === docId);
+  if (!t) return;
+
+  const cond = condEl.value;
+  const updateData = {
+    lent_qty: Math.max(0, (t.lent_qty || 0) - qty)
+  };
+  if (cond !== 'مكسورة') {
+    updateData.qty_current = t.qty_current + qty;
   }
 
-  // ── Toast ────────────────────────────────────
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2500);
+  db.collection("prismops_tools").doc(docId).update(updateData).then(() => {
+    addLog('إرجاع', t.id, t.name, qty, worker, null, cond);
+    const msg = cond === 'مكسورة' ? `⚠️ ${t.name} رجعت مكسورة — تم تسجيل الخسارة` : `تم استرجاع ${qty} ${t.unit} ✓`;
+    showToast(msg);
+  });
+
+  document.getElementById('return_worker').value = '';
+  document.getElementById('return_qty').value = '1';
+  document.getElementById('return_tool_search').value = '';
+  document.getElementById('return_tool_id').value = '';
+  document.querySelectorAll('[name=return_cond]').forEach(r => r.checked = false);
+}
+
+// ── Log ──────────────────────────────────────
+function addLog(action, toolId, toolName, qty, worker, reason, condition) {
+  db.collection("prismops_tool_log").add({
+    timestamp: new Date().toISOString(),
+    action, toolId, toolName, qty,
+    worker: worker || null,
+    reason: reason || null,
+    condition: condition || null
+  });
+}
+
+function renderLog() {
+  let log = getLog();
+
+  if (currentLogFilter !== 'all') {
+    log = log.filter(l => l.action === currentLogFilter || (currentLogFilter === 'إضافة' && l.action === 'إضافة كمية'));
   }
+
+  const searchEl = document.getElementById('log-search-input');
+  const q = searchEl ? searchEl.value.trim().toLowerCase() : '';
+  if (q) {
+    log = log.filter(l =>
+      (l.toolName||'').toLowerCase().includes(q) ||
+      (l.worker||'').toLowerCase().includes(q) ||
+      (l.reason||'').toLowerCase().includes(q) ||
+      (l.action||'').toLowerCase().includes(q) ||
+      (l.toolId||'').toLowerCase().includes(q)
+    );
+  }
+
+  const list = document.getElementById('log-list');
+  if (!list) return;
+
+  if (!log.length) {
+    const hasActiveFilters = q || currentLogFilter !== 'all';
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>${hasActiveFilters ? 'مفيش نتايج مطابقة' : 'السجل فاضي لسه'}</p></div>`;
+    return;
+  }
+  const colorMap = { 'إخراج':'var(--amber)', 'إرجاع':'var(--success)', 'إضافة':'var(--steel)', 'إضافة كمية':'var(--steel)', 'صرف':'var(--warn)' };
+  list.innerHTML = log.map(l => {
+    const dt  = new Date(l.timestamp);
+    const dateStr = `${dt.toLocaleDateString('ar-EG')} ${dt.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'})}`;
+    let detail = `${l.qty} ← ${l.toolName}`;
+    if (l.worker)    detail += ` · ${l.worker}`;
+    if (l.reason)    detail += ` · ${l.reason}`;
+    if (l.condition) detail += ` · حالة: ${l.condition}`;
+    return `
+      <div class="log-item">
+        <div class="log-dot" style="background:${colorMap[l.action]||'var(--muted)'}"></div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;color:${colorMap[l.action]||'var(--muted)'}">${l.action}</div>
+          <div class="log-text">${detail}</div>
+          <div class="log-time">${dateStr}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ── Edit Modal ───────────────────────────────
+function openEditModal(docId) {
+  const t = localToolsArray.find(x => x.docId === docId);
+  if (!t) return;
+  document.getElementById('edit_id').value   = docId; // سنخزن الـ docId هنا للتعديل
+  document.getElementById('edit_name').value = t.name;
+  const type = t.item_type || 'tool';
+  const typeRadio = document.getElementById(type === 'good' ? 'eit2' : 'eit1');
+  if (typeRadio) typeRadio.checked = true;
+  document.getElementById('edit_qty').value  = t.qty_current;
+  document.getElementById('edit_min').value  = t.qty_min || '';
+  document.getElementById('edit_loc').value  = t.location || '';
+  document.getElementById('edit_note').value = t.notes || '';
+  document.getElementById('edit-modal').classList.add('open');
+}
+function closeEditModal() { document.getElementById('edit-modal').classList.remove('open'); }
+function saveEdit() {
+  const docId = document.getElementById('edit_id').value;
+  const typeEl = document.querySelector('[name=edit_item_type]:checked');
+
+  const updatedData = {
+    name:         document.getElementById('edit_name').value.trim(),
+    item_type:    typeEl ? typeEl.value : 'tool',
+    qty_current:  parseInt(document.getElementById('edit_qty').value) || 0,
+    qty_min:      parseInt(document.getElementById('edit_min').value) || 0,
+    location:     document.getElementById('edit_loc').value.trim(),
+    notes:        document.getElementById('edit_note').value.trim()
+  };
+
+  db.collection("prismops_tools").doc(docId).update(updatedData).then(() => {
+    closeEditModal();
+    showToast('تم التعديل أونلاين ✓');
+  });
+}
+
+// ── Delete ───────────────────────────────────
+function deleteTool(docId) {
+  if (!confirm('تحذف الأداة دي نهائياً من السيرفر؟')) return;
+  db.collection("prismops_tools").doc(docId).delete().then(() => {
+    showToast('تم الحذف بنجاح ✓');
+  });
+}
+
+// ── Export ───────────────────────────────────
+function exportInventoryCSV() {
+  const tools = getTools();
+  if (!tools.length) return alert('المخزن فاضي');
+  const cols = ['id','name','item_type','category','unit','qty_current','qty_min','lent_qty','location','notes','added_at'];
+  const rows = [cols.join(','), ...tools.map(t => cols.map(c => {
+    const v = t[c] ?? ''; return typeof v === 'string' && v.includes(',') ? `"${v}"` : v;
+  }).join(','))];
+  download('\uFEFF' + rows.join('\n'), `prismops_inventory_${today()}.csv`);
+  showToast('تم التحميل ✓');
+}
+function exportLogCSV() {
+  const log = getLog();
+  if (!log.length) return alert('السجل فاضي');
+  const cols = ['timestamp','action','toolId','toolName','qty','worker','reason','condition'];
+  const rows = [cols.join(','), ...log.map(l => cols.map(c => {
+    const v = l[c] ?? ''; return typeof v === 'string' && v.includes(',') ? `"${v}"` : v;
+  }).join(','))];
+  download('\uFEFF' + rows.join('\n'), `prismops_log_${today()}.csv`);
+  showToast('تم التحميل ✓');
+}
+function download(content, filename) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], {type:'text/csv;charset=utf-8'}));
+  a.download = filename; a.click();
+}
+function today() { return new Date().toISOString().split('T')[0]; }
+
+function clearAll() {
+  if (!confirm('مسح كل البيانات نهائياً؟ الخطوة دي هتمسح داتا المصنع بالكامل من السيرفر!')) return;
+
+  // مسح الأدوات
+  db.collection("prismops_tools").get().then((snapshot) => {
+    snapshot.forEach((doc) => doc.ref.delete());
+  });
+  // مسح السجل
+  db.collection("prismops_tool_log").get().then((snapshot) => {
+    snapshot.forEach((doc) => doc.ref.delete());
+  });
+  showToast('تم مسح السيرفر');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// الـ Listeners الفورية بتنادي على الـ render تلقائياً أول ما تفتح الصفحة
 </script>
 </body>
 </html>
